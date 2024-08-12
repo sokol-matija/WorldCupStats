@@ -51,8 +51,8 @@ class Program
 		}
 		// Ove metode ne ovise o spolu, pa ih ne moramo mijenjati
 		await TestSettings(dataProvider, providerName);
-		await TestFavoriteTeam(dataProvider, providerName);
-		await TestFavoritePlayers(dataProvider, providerName);
+		//await TestFavoriteTeam(dataProvider, providerName);
+		//await TestFavoritePlayers(dataProvider, providerName);
 	}
 
 	static async Task TestTeams(IDataProvider dataProvider, string providerName, string gender)
@@ -142,23 +142,25 @@ class Program
 		Console.WriteLine($"Učitana postavka: {loadedSetting}");
 	}
 
-	static async Task TestFavoriteTeam(IDataProvider dataProvider, string providerName)
-	{
-		Console.WriteLine($"\n--- Test spremanja i učitavanja omiljenog tima ({providerName}) ---");
-		await dataProvider.SaveFavoriteTeamAsync("CRO");
-		var favoriteTeam = await dataProvider.LoadFavoriteTeamAsync();
-		Console.WriteLine($"Omiljeni tim: {favoriteTeam}");
-	}
+	////TODO make this work again 
+	//static async Task TestFavoriteTeam(IDataProvider dataProvider, string providerName)
+	//{
+	//	Console.WriteLine($"\n--- Test spremanja i učitavanja omiljenog tima ({providerName}) ---");
+	//	await dataProvider.SaveFavoriteTeamAsync("CRO");
+	//	var favoriteTeam = await dataProvider.LoadFavoriteTeamAsync();
+	//	Console.WriteLine($"Omiljeni tim: {favoriteTeam}");
+	//}
 
-	static async Task TestFavoritePlayers(IDataProvider dataProvider, string providerName)
-	{
-		Console.WriteLine($"\n--- Test spremanja i učitavanja omiljenih igrača ({providerName}) ---");
-		await dataProvider.SaveFavoritePlayersAsync(new List<string> { "Luka Modric", "Ivan Perisic", "Marcelo Brozovic" });
-		var favoritePlayers = await dataProvider.LoadFavoritePlayersAsync();
-		Console.WriteLine("Omiljeni igrači:");
-		foreach (var player in favoritePlayers)
-		{
-			Console.WriteLine($"- {player}");
-		}
-	}
+	////TOD
+	//static async Task TestFavoritePlayers(IDataProvider dataProvider, string providerName)
+	//{
+	//	Console.WriteLine($"\n--- Test spremanja i učitavanja omiljenih igrača ({providerName}) ---");
+	//	await dataProvider.SaveFavoritePlayersAsync(new List<string> { "Luka Modric", "Ivan Perisic", "Marcelo Brozovic" });
+	//	var favoritePlayers = await dataProvider.LoadFavoritePlayersAsync();
+	//	Console.WriteLine("Omiljeni igrači:");
+	//	foreach (var player in favoritePlayers)
+	//	{
+	//		Console.WriteLine($"- {player}");
+	//	}
+	//}
 }

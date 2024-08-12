@@ -10,6 +10,7 @@ namespace DataLayer
 	{
 		private const string SettingsFile = "settings.json";
 		private const string FavoritesFile = "favorites.json";
+		private const string FavoriteTeamFile = "favorite_team.json";
 
 		public async Task SaveSettingsAsync(string key, string value)
 		{
@@ -36,15 +37,16 @@ namespace DataLayer
 
 		public async Task SaveFavoriteTeamAsync(string fifaCode)
 		{
-			var favorites = await LoadAllFavoritesAsync();
-			favorites["FavoriteTeam"] = fifaCode;
-			await File.WriteAllTextAsync(FavoritesFile, JsonConvert.SerializeObject(favorites));
+			await File.WriteAllTextAsync(FavoriteTeamFile, fifaCode);
 		}
 
 		public async Task<string> LoadFavoriteTeamAsync()
 		{
-			var favorites = await LoadAllFavoritesAsync();
-			return favorites.TryGetValue("FavoriteTeam", out var value) ? value : null;
+			if (File.Exists(FavoriteTeamFile))
+			{
+				return await File.ReadAllTextAsync(FavoriteTeamFile);
+			}
+			return null;
 		}
 
 		public async Task SaveFavoritePlayersAsync(List<string> playerNames)

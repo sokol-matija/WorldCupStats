@@ -16,12 +16,15 @@ namespace DataLayer
 		private const string MatchesFile = "matches.json";
 		private const string ResultsFile = "results.json";
 		private const string GroupResultsFile = "group_results.json";
+		private const string AssetsFolderPath = ".\\assets\\";
+		private const string FavoritesFileName = "favorites.json";
 
 		private readonly LocalStorageProvider _localStorageProvider;
 
 		public JsonDataProvider()
 		{
 			_localStorageProvider = new LocalStorageProvider();
+			Directory.CreateDirectory(AssetsFolderPath);
 		}
 
 		private async Task<T> ReadJsonFile<T>(string gender, string fileName)
@@ -78,7 +81,6 @@ namespace DataLayer
 			return new List<Player>();
 		}
 
-		// Metode za postavke i omiljene podatke ostaju iste
 		public Task SaveSettingsAsync(string key, string value) => _localStorageProvider.SaveSettingsAsync(key, value);
 		public Task<string> LoadSettingsAsync(string key) => _localStorageProvider.LoadSettingsAsync(key);
 		public Task SaveFavoriteTeamAsync(string fifaCode) => _localStorageProvider.SaveFavoriteTeamAsync(fifaCode);
@@ -141,6 +143,60 @@ namespace DataLayer
 			return matches.OrderByDescending(m => int.Parse(m.Attendance))
 						  .Take(count)
 						  .ToList();
+		}
+
+		public async Task SaveFavoritePlayersAsync(string fifaCode, List<string> playerNames)
+		{
+			var favoritesFilePath = Path.Combine(AssetsFolderPath, FavoritesFileName);
+			var favorites = new Dictionary<string, List<string>>();
+
+			if (File.Exists(favoritesFilePath))
+			{
+				var json = await File.ReadAllTextAsync(favoritesFilePath);
+				favorites = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json) ?? new Dictionary<string, List<string>>();
+			}
+
+			favorites[fifaCode] = playerNames;
+
+			var updatedJson = JsonConvert.SerializeObject(favorites);
+
+			// Osigurajmo da Assets folder postoji
+			Directory.CreateDirectory(AssetsFolderPath);
+
+			await File.WriteAllTextAsync(favoritesFilePath, updatedJson);
+		}
+
+		public async Task<List<string>> LoadFavoritePlayersAsync(string fifaCode)
+		{
+			var favoritesFilePath = Path.Combine(AssetsFolderPath, FavoritesFileName);
+
+			if (File.Exists(favoritesFilePath))
+			{
+				var json = await File.ReadAllTextAsync(favoritesFilePath);
+				var favorites = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json);
+				if (favorites != null && favorites.TryGetValue(fifaCode, out var playerNames))
+				{
+					return playerNames;
+				}
+			}
+			return new List<string>();
+		}
+
+		private async Task<Dictionary<string, List<string>>> LoadAllFavoritesAsync()
+		{
+			if (File.Exists(FavoritesFileName))
+			{
+				var json = await File.ReadAllTextAsync(FavoritesFileName);
+				return JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)
+					   ?? new Dictionary<string, List<string>>();
+			}
+			return new Dictionary<string, List<string>>();
+		}
+
+		private async Task SaveAllFavoritesAsync(Dictionary<string, List<string>> favorites)
+		{
+			var json = JsonConvert.SerializeObject(favorites, Formatting.Indented);
+			await File.WriteAllTextAsync(FavoritesFileName, json);
 		}
 	}
 }

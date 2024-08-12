@@ -12,11 +12,14 @@ namespace DataLayer
 		private readonly LocalStorageProvider _localStorageProvider;
 		private readonly HttpClient _httpClient;
 		private const string BaseUrl = "https://worldcup-vua.nullbit.hr";
+		private const string AssetsFolderPath = ".\\assets\\";
+		private const string FavoritesFileName = "favorites.json";
 
 		public ApiDataProvider()
 		{
 			_httpClient = new HttpClient();
 			_localStorageProvider = new LocalStorageProvider();
+			Directory.CreateDirectory(AssetsFolderPath);
 		}
 
 		public async Task<List<Team>> GetTeamsAsync(string gender)
@@ -77,6 +80,7 @@ namespace DataLayer
 			return _localStorageProvider.SaveSettingsAsync(key, value);
 		}
 
+		//TODO: Differentiate between men and womnen championship
 		public Task<string> LoadSettingsAsync(string key)
 		{
 			return _localStorageProvider.LoadSettingsAsync(key);
@@ -156,6 +160,54 @@ namespace DataLayer
 			return matches.OrderByDescending(m => int.Parse(m.Attendance))
 						  .Take(count)
 						  .ToList();
+		}
+
+		public async Task SaveFavoritePlayersAsync(string fifaCode, List<string> playerNames)
+		{
+			var favoritesFilePath = Path.Combine(AssetsFolderPath, FavoritesFileName);
+			var favorites = new Dictionary<string, List<string>>();
+
+			if (File.Exists(favoritesFilePath))
+			{
+				var json = await File.ReadAllTextAsync(favoritesFilePath);
+				favorites = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json) ?? new Dictionary<string, List<string>>();
+			}
+
+			favorites[fifaCode] = playerNames;
+
+			var updatedJson = JsonConvert.SerializeObject(favorites);
+
+			// Osigurajmo da Assets folder postoji
+			Directory.CreateDirectory(AssetsFolderPath);
+
+			await File.WriteAllTextAsync(favoritesFilePath, updatedJson);
+		}
+
+		public async Task<List<string>> LoadFavoritePlayersAsync(string fifaCode)
+		{
+			var favoritesFilePath = Path.Combine(AssetsFolderPath, FavoritesFileName);
+			Console.WriteLine($"Loading favorites from: {favoritesFilePath}");
+
+			if (File.Exists(favoritesFilePath))
+			{
+				var json = await File.ReadAllTextAsync(favoritesFilePath);
+				Console.WriteLine($"JSON content: {json}");
+				var favorites = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json);
+				if (favorites != null && favorites.TryGetValue(fifaCode, out var playerNames))
+				{
+					Console.WriteLine($"Loaded {playerNames.Count} favorite players for {fifaCode}");
+					return playerNames;
+				}
+				else
+				{
+					Console.WriteLine($"No favorites found for {fifaCode}");
+				}
+			}
+			else
+			{
+				Console.WriteLine("Favorites file not found");
+			}
+			return new List<string>();
 		}
 	}
 }

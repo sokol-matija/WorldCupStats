@@ -28,12 +28,284 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 450);
-			this.Text = "Form1";
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+			cmbTeams = new ComboBox();
+			lblChooseTeam = new Label();
+			lstMatches = new ListBox();
+			lstYellowCards = new ListBox();
+			lstTopScorers = new ListBox();
+			lblMatches = new Label();
+			lblYellowCards = new Label();
+			lblTopScorers = new Label();
+			pnlAllPlayers = new Panel();
+			pnlFavoritePlayers = new Panel();
+			lblAllPlayers = new Label();
+			lblFavoritePlayers = new Label();
+			menuStrip = new MenuStrip();
+			mnuSettings = new ToolStripMenuItem();
+			mnuPrint = new ToolStripMenuItem();
+			mnuChosePrintType = new ToolStripMenuItem();
+			mnuPrintPreview = new ToolStripMenuItem();
+			mnuPrinting = new ToolStripMenuItem();
+			mnuPrintStatistics = new ToolStripMenuItem();
+			printDialog = new PrintDialog();
+			printDocument = new System.Drawing.Printing.PrintDocument();
+			printPreviewDialog = new PrintPreviewDialog();
+			statusStrip = new StatusStrip();
+			menuStrip.SuspendLayout();
+			SuspendLayout();
+			// 
+			// cmbTeams
+			// 
+			cmbTeams.FormattingEnabled = true;
+			cmbTeams.Location = new Point(38, 74);
+			cmbTeams.Name = "cmbTeams";
+			cmbTeams.Size = new Size(212, 38);
+			cmbTeams.TabIndex = 0;
+			cmbTeams.SelectedIndexChanged += cmbTeams_SelectedIndexChanged;
+			// 
+			// lblChooseTeam
+			// 
+			lblChooseTeam.AutoSize = true;
+			lblChooseTeam.Location = new Point(38, 40);
+			lblChooseTeam.Name = "lblChooseTeam";
+			lblChooseTeam.Size = new Size(142, 30);
+			lblChooseTeam.TabIndex = 1;
+			lblChooseTeam.Text = "Choose Team:";
+			// 
+			// lstMatches
+			// 
+			lstMatches.FormattingEnabled = true;
+			lstMatches.ItemHeight = 30;
+			lstMatches.Location = new Point(1509, 78);
+			lstMatches.Name = "lstMatches";
+			lstMatches.Size = new Size(283, 424);
+			lstMatches.TabIndex = 2;
+			// 
+			// lstYellowCards
+			// 
+			lstYellowCards.FormattingEnabled = true;
+			lstYellowCards.ItemHeight = 30;
+			lstYellowCards.Location = new Point(1156, 78);
+			lstYellowCards.Name = "lstYellowCards";
+			lstYellowCards.Size = new Size(278, 424);
+			lstYellowCards.TabIndex = 3;
+			// 
+			// lstTopScorers
+			// 
+			lstTopScorers.FormattingEnabled = true;
+			lstTopScorers.ItemHeight = 30;
+			lstTopScorers.Location = new Point(796, 78);
+			lstTopScorers.Name = "lstTopScorers";
+			lstTopScorers.Size = new Size(278, 424);
+			lstTopScorers.TabIndex = 4;
+			// 
+			// lblMatches
+			// 
+			lblMatches.AutoSize = true;
+			lblMatches.Location = new Point(1509, 40);
+			lblMatches.Name = "lblMatches";
+			lblMatches.Size = new Size(97, 30);
+			lblMatches.TabIndex = 5;
+			lblMatches.Text = "Matches:";
+			// 
+			// lblYellowCards
+			// 
+			lblYellowCards.AutoSize = true;
+			lblYellowCards.Location = new Point(1156, 40);
+			lblYellowCards.Name = "lblYellowCards";
+			lblYellowCards.Size = new Size(134, 30);
+			lblYellowCards.TabIndex = 6;
+			lblYellowCards.Text = "Yellow Cards:";
+			// 
+			// lblTopScorers
+			// 
+			lblTopScorers.AutoSize = true;
+			lblTopScorers.Location = new Point(796, 40);
+			lblTopScorers.Name = "lblTopScorers";
+			lblTopScorers.Size = new Size(119, 30);
+			lblTopScorers.TabIndex = 7;
+			lblTopScorers.Text = "Top Scorers";
+			// 
+			// pnlAllPlayers
+			// 
+			pnlAllPlayers.AllowDrop = true;
+			pnlAllPlayers.AutoScroll = true;
+			pnlAllPlayers.BorderStyle = BorderStyle.FixedSingle;
+			pnlAllPlayers.Location = new Point(38, 190);
+			pnlAllPlayers.Margin = new Padding(4);
+			pnlAllPlayers.Name = "pnlAllPlayers";
+			pnlAllPlayers.Size = new Size(430, 360);
+			pnlAllPlayers.TabIndex = 9;
+			pnlAllPlayers.DragDrop += pnlAllPlayers_DragDrop;
+			pnlAllPlayers.DragEnter += pnlAllPlayers_DragEnter;
+			// 
+			// pnlFavoritePlayers
+			// 
+			pnlFavoritePlayers.AllowDrop = true;
+			pnlFavoritePlayers.AutoScroll = true;
+			pnlFavoritePlayers.BorderStyle = BorderStyle.FixedSingle;
+			pnlFavoritePlayers.Location = new Point(38, 608);
+			pnlFavoritePlayers.Margin = new Padding(4);
+			pnlFavoritePlayers.Name = "pnlFavoritePlayers";
+			pnlFavoritePlayers.Size = new Size(430, 412);
+			pnlFavoritePlayers.TabIndex = 10;
+			pnlFavoritePlayers.DragDrop += pnlFavoritePlayers_DragDrop;
+			pnlFavoritePlayers.DragEnter += pnlFavoritePlayers_DragEnter;
+			// 
+			// lblAllPlayers
+			// 
+			lblAllPlayers.AutoSize = true;
+			lblAllPlayers.Location = new Point(38, 156);
+			lblAllPlayers.Margin = new Padding(4, 0, 4, 0);
+			lblAllPlayers.Name = "lblAllPlayers";
+			lblAllPlayers.Size = new Size(108, 30);
+			lblAllPlayers.TabIndex = 0;
+			lblAllPlayers.Text = "All Players";
+			// 
+			// lblFavoritePlayers
+			// 
+			lblFavoritePlayers.AutoSize = true;
+			lblFavoritePlayers.Location = new Point(38, 573);
+			lblFavoritePlayers.Margin = new Padding(4, 0, 4, 0);
+			lblFavoritePlayers.Name = "lblFavoritePlayers";
+			lblFavoritePlayers.Size = new Size(156, 30);
+			lblFavoritePlayers.TabIndex = 11;
+			lblFavoritePlayers.Text = "Favorite Players";
+			// 
+			// menuStrip
+			// 
+			menuStrip.ImageScalingSize = new Size(28, 28);
+			menuStrip.Items.AddRange(new ToolStripItem[] { mnuSettings, mnuPrint });
+			menuStrip.Location = new Point(0, 0);
+			menuStrip.Name = "menuStrip";
+			menuStrip.Size = new Size(1818, 38);
+			menuStrip.TabIndex = 12;
+			menuStrip.Text = "menuStrip1";
+			// 
+			// mnuSettings
+			// 
+			mnuSettings.Name = "mnuSettings";
+			mnuSettings.Size = new Size(105, 34);
+			mnuSettings.Text = "Settings";
+			mnuSettings.Click += settingsToolStripMenuItem_Click;
+			// 
+			// mnuPrint
+			// 
+			mnuPrint.DropDownItems.AddRange(new ToolStripItem[] { mnuChosePrintType, mnuPrintPreview, mnuPrinting, mnuPrintStatistics });
+			mnuPrint.Name = "mnuPrint";
+			mnuPrint.Size = new Size(74, 34);
+			mnuPrint.Text = "Print";
+			// 
+			// mnuChosePrintType
+			// 
+			mnuChosePrintType.Name = "mnuChosePrintType";
+			mnuChosePrintType.Size = new Size(286, 40);
+			mnuChosePrintType.Text = "Chose Print Type";
+			mnuChosePrintType.Click += chosePrintType_Click;
+			// 
+			// mnuPrintPreview
+			// 
+			mnuPrintPreview.Name = "mnuPrintPreview";
+			mnuPrintPreview.Size = new Size(286, 40);
+			mnuPrintPreview.Text = "Print Preview";
+			mnuPrintPreview.Click += printPreview_Click;
+			// 
+			// mnuPrinting
+			// 
+			mnuPrinting.Name = "mnuPrinting";
+			mnuPrinting.Size = new Size(286, 40);
+			mnuPrinting.Text = "Print";
+			mnuPrinting.Click += print_Click;
+			// 
+			// mnuPrintStatistics
+			// 
+			mnuPrintStatistics.Name = "mnuPrintStatistics";
+			mnuPrintStatistics.Size = new Size(286, 40);
+			mnuPrintStatistics.Text = "Print Statistics";
+			mnuPrintStatistics.Click += printStatistics_Click;
+			// 
+			// printDialog
+			// 
+			printDialog.UseEXDialog = true;
+			// 
+			// printDocument
+			// 
+			printDocument.PrintPage += printDocument_PrintPage;
+			// 
+			// printPreviewDialog
+			// 
+			printPreviewDialog.AutoScrollMargin = new Size(0, 0);
+			printPreviewDialog.AutoScrollMinSize = new Size(0, 0);
+			printPreviewDialog.ClientSize = new Size(400, 300);
+			printPreviewDialog.Document = printDocument;
+			printPreviewDialog.Enabled = true;
+			printPreviewDialog.Icon = (Icon)resources.GetObject("printPreviewDialog.Icon");
+			printPreviewDialog.Name = "printPreviewDialog";
+			printPreviewDialog.Visible = false;
+			// 
+			// statusStrip
+			// 
+			statusStrip.ImageScalingSize = new Size(28, 28);
+			statusStrip.Location = new Point(0, 1005);
+			statusStrip.Name = "statusStrip";
+			statusStrip.Size = new Size(1818, 33);
+			statusStrip.TabIndex = 13;
+			statusStrip.Text = "statusStrip1";
+			// 
+			// Form1
+			// 
+			AutoScaleDimensions = new SizeF(12F, 30F);
+			AutoScaleMode = AutoScaleMode.Font;
+			ClientSize = new Size(1818, 1038);
+			Controls.Add(statusStrip);
+			Controls.Add(lblFavoritePlayers);
+			Controls.Add(lblAllPlayers);
+			Controls.Add(pnlFavoritePlayers);
+			Controls.Add(pnlAllPlayers);
+			Controls.Add(lblTopScorers);
+			Controls.Add(lblYellowCards);
+			Controls.Add(lblMatches);
+			Controls.Add(lstTopScorers);
+			Controls.Add(lstYellowCards);
+			Controls.Add(lstMatches);
+			Controls.Add(lblChooseTeam);
+			Controls.Add(cmbTeams);
+			Controls.Add(menuStrip);
+			MainMenuStrip = menuStrip;
+			Name = "Form1";
+			StartPosition = FormStartPosition.CenterScreen;
+			Text = "World Cup Statistics";
+			menuStrip.ResumeLayout(false);
+			menuStrip.PerformLayout();
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion
+
+		private ComboBox cmbTeams;
+		private Label lblChooseTeam;
+		private ListBox lstMatches;
+		private ListBox lstYellowCards;
+		private ListBox lstTopScorers;
+		private Label lblMatches;
+		private Label lblYellowCards;
+		private Label lblTopScorers;
+		private Panel pnlAllPlayers;
+		private Panel pnlFavoritePlayers;
+		private Label lblAllPlayers;
+		private Label lblFavoritePlayers;
+		private MenuStrip menuStrip;
+		private PrintDialog printDialog;
+		private System.Drawing.Printing.PrintDocument printDocument;
+		private PrintPreviewDialog printPreviewDialog;
+		private StatusStrip statusStrip;
+		private ToolStripMenuItem mnuSettings;
+		private ToolStripMenuItem mnuPrint;
+		private ToolStripMenuItem mnuChosePrintType;
+		private ToolStripMenuItem mnuPrintPreview;
+		private ToolStripMenuItem mnuPrinting;
+		private ToolStripMenuItem mnuPrintStatistics;
 	}
 }

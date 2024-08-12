@@ -11,6 +11,7 @@ namespace WFA_WorldCupStats
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
 			ApplicationConfiguration.Initialize();
+			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 			Application.Run(new Form1());
 		}
 	}
