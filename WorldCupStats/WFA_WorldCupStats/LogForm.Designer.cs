@@ -38,14 +38,14 @@
 			listBoxLogs.ItemHeight = 30;
 			listBoxLogs.Location = new Point(0, 0);
 			listBoxLogs.Name = "listBoxLogs";
-			listBoxLogs.Size = new Size(540, 450);
+			listBoxLogs.Size = new Size(1083, 450);
 			listBoxLogs.TabIndex = 0;
 			// 
 			// LogForm
 			// 
 			AutoScaleDimensions = new SizeF(12F, 30F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(540, 450);
+			ClientSize = new Size(1083, 450);
 			Controls.Add(listBoxLogs);
 			Name = "LogForm";
 			Text = "LogForm";

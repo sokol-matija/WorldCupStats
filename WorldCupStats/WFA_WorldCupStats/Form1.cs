@@ -288,16 +288,14 @@ namespace WFA_WorldCupStats
 
 			foreach (var player in _allPlayers)
 			{
-				var playerControl = new PlayerControl(player);
+				var isFavorite = _favoritePlayers.Any(fp => fp.Player.Name == player.Name);
+				var playerControl = new PlayerControl(player) { IsFavorite = isFavorite };
 				playerControl.MouseDown += PlayerControl_MouseDown;
 
-				// Dodajte igraèa u panel svih igraèa
 				pnlAllPlayers.Controls.Add(playerControl);
 
-				// Ako je igraè favorit, dodajte ga i u panel favorita
-				if (_favoritePlayers.Any(fp => fp.Player.Name == player.Name))
+				if (isFavorite)
 				{
-					playerControl.IsFavorite = true;
 					var favPlayerControl = new PlayerControl(player) { IsFavorite = true };
 					favPlayerControl.MouseDown += PlayerControl_MouseDown;
 					pnlFavoritePlayers.Controls.Add(favPlayerControl);
@@ -339,46 +337,40 @@ namespace WFA_WorldCupStats
 		}
 
 		private async Task ToggleFavoritePlayer(PlayerControl playerControl)
-		{
-			if (playerControl.IsFavorite)
-			{
-				_favoritePlayers.RemoveAll(pc => pc.Player.Name == playerControl.Player.Name);
-				playerControl.IsFavorite = false;
-				logForm.Log($"Removed player from favorites: {playerControl.Player.Name}");
+{
+    if (playerControl.IsFavorite)
+    {
+        _favoritePlayers.RemoveAll(pc => pc.Player.Name == playerControl.Player.Name);
+        playerControl.IsFavorite = false;
+        logForm.Log($"Removed player from favorites: {playerControl.Player.Name}");
 
-				// Ukloni igraèa iz panela favorita
-				var controlToRemove = pnlFavoritePlayers.Controls
-					.Cast<Control>()
-					.FirstOrDefault(c => c is PlayerControl pc && pc.Player.Name == playerControl.Player.Name);
-				if (controlToRemove != null)
-				{
-					pnlFavoritePlayers.Controls.Remove(controlToRemove);
-				}
-			}
-			else
-			{
-				if (_favoritePlayers.Count < 3)
-				{
-					_favoritePlayers.Add(playerControl);
-					playerControl.IsFavorite = true;
-					logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
+        // We no longer need to manually remove the control from pnlFavoritePlayers
+        // as UpdatePlayerPanels will handle this for us
+    }
+    else
+    {
+        if (_favoritePlayers.Count < 3)
+        {
+            _favoritePlayers.Add(playerControl);
+            playerControl.IsFavorite = true;
+            logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
 
-					// Dodaj igraèa u panel favorita
-					var favPlayerControl = new PlayerControl(playerControl.Player) { IsFavorite = true };
-					favPlayerControl.MouseDown += PlayerControl_MouseDown;
-					pnlFavoritePlayers.Controls.Add(favPlayerControl);
-				}
-				else
-				{
-					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
-					logForm.Log("Attempt to add more than 3 favorite players");
-					return;
-				}
-			}
+            // We no longer need to manually add the control to pnlFavoritePlayers
+            // as UpdatePlayerPanels will handle this for us
+        }
+        else
+        {
+            MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            logForm.Log("Attempt to add more than 3 favorite players");
+            return;
+        }
+    }
 
-			ArrangePanelControls(pnlFavoritePlayers);
-			await SaveFavoritePlayers();
-		}
+    // Update both panels to reflect the changes
+    UpdatePlayerPanels();
+
+    await SaveFavoritePlayers();
+}
 
 		private async Task SaveFavoritePlayers()
 		{
@@ -429,6 +421,7 @@ namespace WFA_WorldCupStats
 		{
 			PlayerControl playerControl = (PlayerControl)e.Data.GetData(typeof(PlayerControl));
 			await ToggleFavoritePlayer(playerControl);
+			UpdatePlayerPanels();
 			logForm.Log($"Drag and drop event triggered for player: {playerControl.Player.Name}");
 		}
 
@@ -436,6 +429,7 @@ namespace WFA_WorldCupStats
 		{
 			PlayerControl playerControl = (PlayerControl)e.Data.GetData(typeof(PlayerControl));
 			await ToggleFavoritePlayer(playerControl);
+			UpdatePlayerPanels();
 			logForm.Log($"Drag and drop event triggered for player: {playerControl.Player.Name}");
 		}
 

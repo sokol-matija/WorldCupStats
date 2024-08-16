@@ -12,10 +12,28 @@ namespace WFA_WorldCupStats
 {
 	public partial class LogForm : Form
 	{
+		private ContextMenuStrip contextMenuStrip;
 		public LogForm()
 		{
 			InitializeComponent();
+			SetupContextMenu();
 		}
+
+		private void SetupContextMenu()
+		{
+			contextMenuStrip = new ContextMenuStrip();
+			ToolStripMenuItem clearLogsItem = new ToolStripMenuItem("Clear Logs");
+			clearLogsItem.Click += ClearLogsItem_Click;
+			contextMenuStrip.Items.Add(clearLogsItem);
+
+			listBoxLogs.ContextMenuStrip = contextMenuStrip;
+		}
+
+		private void ClearLogsItem_Click(object sender, EventArgs e)
+		{
+			listBoxLogs.Items.Clear();
+		}
+
 
 		public void Log(string message)
 		{

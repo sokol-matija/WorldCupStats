@@ -1,27 +1,36 @@
 ﻿using DataLayer.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace WFA_WorldCupStats
 {
 	public partial class PlayerControl : UserControl
 	{
-		//TODO: Make selection of multiple players possible with color change
-		public Player Player { get; }
-		public bool IsFavorite { get; set; }
-		public bool IsSelected { get; set; }
-		private Color _defaultBackColor;
-
 		private readonly string _starImagePath = Path.Combine(Application.StartupPath, "Resources", "star.png");
 		private readonly string _defaultPlayerImagePath = Path.Combine(Application.StartupPath, "Resources", "profile.png");
 
+		public Player Player { get; private set; }
+		private bool _isFavorite;
+		private bool _isSelected;
+		private Color _defaultBackColor;
+
+		public bool IsFavorite
+		{
+			get => _isFavorite;
+			set
+			{
+				_isFavorite = value;
+				UpdateFavoriteStatus();
+			}
+		}
+
+		public bool IsSelected
+		{
+			get => _isSelected;
+			set
+			{
+				_isSelected = value;
+				UpdateSelectionStatus();
+			}
+		}
 
 		public PlayerControl(Player player)
 		{
@@ -62,11 +71,23 @@ namespace WFA_WorldCupStats
 			chkCaptain.Text = Strings.Capitain;
 			chkCaptain.Checked = Player.Captain;
 			UpdateFavoriteStatus();
+			UpdateSelectionStatus();
 		}
 
-		public void UpdateFavoriteStatus()
+		private void UpdateFavoriteStatus()
 		{
-			picFavorite.Visible = IsFavorite;
+			picFavorite.Visible = _isFavorite;
+		}
+
+		private void UpdateSelectionStatus()
+		{
+			this.BackColor = _isSelected ? Color.LightBlue : _defaultBackColor;
+		}
+
+
+		public void ApplyLocalization()
+		{
+			UpdateDisplay();
 		}
 
 		private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
@@ -77,17 +98,5 @@ namespace WFA_WorldCupStats
 			}
 		}
 
-		private void PlayerControl_MouseClick(object sender, MouseEventArgs e)
-		{
-			if (e.Button == MouseButtons.Left && ModifierKeys == Keys.Control)
-			{
-				IsSelected = !IsSelected;
-				this.BackColor = IsSelected ? Color.LightBlue : _defaultBackColor;
-			}
-		}
-		public void ApplyLocalization()
-		{
-			UpdateDisplay();
-		}
 	}
 }

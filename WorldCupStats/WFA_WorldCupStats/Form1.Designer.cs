@@ -247,9 +247,9 @@
 			// statusStrip
 			// 
 			statusStrip.ImageScalingSize = new Size(28, 28);
-			statusStrip.Location = new Point(0, 1005);
+			statusStrip.Location = new Point(0, 1016);
 			statusStrip.Name = "statusStrip";
-			statusStrip.Size = new Size(1818, 33);
+			statusStrip.Size = new Size(1818, 22);
 			statusStrip.TabIndex = 13;
 			statusStrip.Text = "statusStrip1";
 			// 
