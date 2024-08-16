@@ -14,6 +14,7 @@ namespace WFA_WorldCupStats
 		private string _favoriteTeam;
 		private List<Player> _allPlayers;
 		private List<PlayerControl> _favoritePlayers = new List<PlayerControl>();
+		private List<PlayerControl> _selectedPlayers = new List<PlayerControl>();
 		private LogForm logForm;
 
 
@@ -65,6 +66,7 @@ namespace WFA_WorldCupStats
 			ChangeLanguage(_selectedLanguage);
 
 			// Uèitavanje podataka za odabrano prvenstvo
+			ClearSelection();
 			await LoadChampionshipData();
 
 			// Ažuriranje UI-a
@@ -142,7 +144,7 @@ namespace WFA_WorldCupStats
 					}
 				};
 
-				
+
 				if (!string.IsNullOrEmpty(_favoriteTeam))
 				{
 					var team = teams.FirstOrDefault(t => t.FifaCode == _favoriteTeam);
@@ -283,20 +285,42 @@ namespace WFA_WorldCupStats
 
 		private void UpdatePlayerPanels()
 		{
+			if (pnlAllPlayers == null || pnlFavoritePlayers == null || _allPlayers == null)
+			{
+				logForm?.Log("One or more required objects are null.");
+				return;
+			}
+
 			pnlAllPlayers.Controls.Clear();
 			pnlFavoritePlayers.Controls.Clear();
 
 			foreach (var player in _allPlayers)
 			{
-				var isFavorite = _favoritePlayers.Any(fp => fp.Player.Name == player.Name);
-				var playerControl = new PlayerControl(player) { IsFavorite = isFavorite };
+				if (player == null)
+				{
+					logForm?.Log("Encountered a null player in _allPlayers.");
+					continue;
+				}
+
+				var isFavorite = _favoritePlayers?.Any(fp => fp?.Player?.Name == player.Name) ?? false;
+				var isSelected = _selectedPlayers?.Any(sp => sp?.Player?.Name == player.Name) ?? false;
+
+				var playerControl = new PlayerControl(player)
+				{
+					IsFavorite = isFavorite,
+					IsSelected = isSelected
+				};
 				playerControl.MouseDown += PlayerControl_MouseDown;
 
 				pnlAllPlayers.Controls.Add(playerControl);
 
 				if (isFavorite)
 				{
-					var favPlayerControl = new PlayerControl(player) { IsFavorite = true };
+					var favPlayerControl = new PlayerControl(player)
+					{
+						IsFavorite = true,
+						IsSelected = isSelected
+					};
 					favPlayerControl.MouseDown += PlayerControl_MouseDown;
 					pnlFavoritePlayers.Controls.Add(favPlayerControl);
 				}
@@ -304,10 +328,10 @@ namespace WFA_WorldCupStats
 
 			ArrangePanelControls(pnlAllPlayers);
 			ArrangePanelControls(pnlFavoritePlayers);
+			UpdateMoveToFavoritesButtonVisibility();
 
-			logForm.Log($"Updated player panels. All players: {pnlAllPlayers.Controls.Count}, Favorite players: {pnlFavoritePlayers.Controls.Count}");
+			logForm?.Log($"Updated player panels. All players: {pnlAllPlayers.Controls.Count}, Favorite players: {pnlFavoritePlayers.Controls.Count}, Selected players: {_selectedPlayers.Count}");
 		}
-
 		private void ArrangePanelControls(Panel panel)
 		{
 			int yPosition = 0;
@@ -330,47 +354,94 @@ namespace WFA_WorldCupStats
 		private void ShowPlayerContextMenu(PlayerControl playerControl, Point location)
 		{
 			var contextMenu = new ContextMenuStrip();
+
 			var toggleFavoriteItem = new ToolStripMenuItem(playerControl.IsFavorite ? "Remove from favorites" : "Add to favorites");
 			toggleFavoriteItem.Click += (sender, e) => ToggleFavoritePlayer(playerControl);
 			contextMenu.Items.Add(toggleFavoriteItem);
+
+			var toggleSelectItem = new ToolStripMenuItem(playerControl.IsSelected ? "Deselect" : "Select");
+			toggleSelectItem.Click += (sender, e) => ToggleSelectPlayer(playerControl);
+			contextMenu.Items.Add(toggleSelectItem);
+
 			contextMenu.Show(playerControl, location);
 		}
 
+		private void ToggleSelectPlayer(PlayerControl playerControl)
+		{
+			playerControl.IsSelected = !playerControl.IsSelected;
+
+			if (playerControl.IsSelected)
+			{
+				if (!_selectedPlayers.Contains(playerControl))
+				{
+					_selectedPlayers.Add(playerControl);
+				}
+			}
+			else
+			{
+				_selectedPlayers.Remove(playerControl);
+			}
+
+			UpdatePlayerControl(pnlAllPlayers, playerControl);
+			UpdatePlayerControl(pnlFavoritePlayers, playerControl);
+
+			UpdateMoveToFavoritesButtonVisibility();
+
+			logForm.Log($"Player {playerControl.Player.Name} {(playerControl.IsSelected ? "selected" : "deselected")}. Total selected: {_selectedPlayers.Count}");
+		}
+
+		private void UpdateMoveToFavoritesButtonVisibility()
+		{
+			btnMoveToFavorites.Visible = _selectedPlayers != null && _selectedPlayers.Count > 0;
+		}
+
+		private void UpdatePlayerControl(Panel panel, PlayerControl updatedControl)
+		{
+			foreach (Control control in panel.Controls)
+			{
+				if (control is PlayerControl playerControl && playerControl.Player.Name == updatedControl.Player.Name)
+				{
+					playerControl.IsSelected = updatedControl.IsSelected;
+					break;
+				}
+			}
+		}
+
 		private async Task ToggleFavoritePlayer(PlayerControl playerControl)
-{
-    if (playerControl.IsFavorite)
-    {
-        _favoritePlayers.RemoveAll(pc => pc.Player.Name == playerControl.Player.Name);
-        playerControl.IsFavorite = false;
-        logForm.Log($"Removed player from favorites: {playerControl.Player.Name}");
+		{
+			if (playerControl.IsFavorite)
+			{
+				_favoritePlayers.RemoveAll(pc => pc.Player.Name == playerControl.Player.Name);
+				playerControl.IsFavorite = false;
+				logForm.Log($"Removed player from favorites: {playerControl.Player.Name}");
 
-        // We no longer need to manually remove the control from pnlFavoritePlayers
-        // as UpdatePlayerPanels will handle this for us
-    }
-    else
-    {
-        if (_favoritePlayers.Count < 3)
-        {
-            _favoritePlayers.Add(playerControl);
-            playerControl.IsFavorite = true;
-            logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
+				// We no longer need to manually remove the control from pnlFavoritePlayers
+				// as UpdatePlayerPanels will handle this for us
+			}
+			else
+			{
+				if (_favoritePlayers.Count < 3)
+				{
+					_favoritePlayers.Add(playerControl);
+					playerControl.IsFavorite = true;
+					logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
 
-            // We no longer need to manually add the control to pnlFavoritePlayers
-            // as UpdatePlayerPanels will handle this for us
-        }
-        else
-        {
-            MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            logForm.Log("Attempt to add more than 3 favorite players");
-            return;
-        }
-    }
+					// We no longer need to manually add the control to pnlFavoritePlayers
+					// as UpdatePlayerPanels will handle this for us
+				}
+				else
+				{
+					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					logForm.Log("Attempt to add more than 3 favorite players");
+					return;
+				}
+			}
 
-    // Update both panels to reflect the changes
-    UpdatePlayerPanels();
+			// Update both panels to reflect the changes
+			UpdatePlayerPanels();
 
-    await SaveFavoritePlayers();
-}
+			await SaveFavoritePlayers();
+		}
 
 		private async Task SaveFavoritePlayers()
 		{
@@ -392,7 +463,7 @@ namespace WFA_WorldCupStats
 			var favoritePlayerNames = await _dataProvider.LoadFavoritePlayersAsync(fifaCode);
 			logForm.Log($"Loaded {favoritePlayerNames.Count} favorite player names for team {fifaCode}");
 
-			_favoritePlayers.Clear(); 
+			_favoritePlayers.Clear();
 
 			foreach (var playerName in favoritePlayerNames)
 			{
@@ -462,8 +533,17 @@ namespace WFA_WorldCupStats
 			{
 				logForm.Log($"Team changed to: {selectedTeam.Country} ({selectedTeam.FifaCode})");
 				await _dataProvider.SaveFavoriteTeamAsync(selectedTeam.FifaCode);
+				ClearSelection(); // Add this line
 				await LoadPlayerDetails(selectedTeam.FifaCode);
 			}
+		}
+
+		private void ClearSelection()
+		{
+			_selectedPlayers?.Clear();
+			UpdatePlayerPanels();
+			UpdateMoveToFavoritesButtonVisibility();
+			logForm?.Log("All player selections cleared.");
 		}
 
 		private void printDocument_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
@@ -557,6 +637,42 @@ namespace WFA_WorldCupStats
 			return report.ToString();
 
 
+		}
+
+		private void btnMoveToFavorites_Click(object sender, EventArgs e)
+		{
+			MoveSelectedPlayersToFavorites();
+		}
+
+		private void MoveSelectedPlayersToFavorites()
+		{
+			if (_selectedPlayers == null || _selectedPlayers.Count == 0)
+			{
+				return;
+			}
+
+			foreach (var playerControl in _selectedPlayers.ToList())
+			{
+				if (_favoritePlayers.Count < 3)
+				{
+					if (!_favoritePlayers.Any(fp => fp.Player.Name == playerControl.Player.Name))
+					{
+						playerControl.IsFavorite = true;
+						_favoritePlayers.Add(playerControl);
+						logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
+					}
+				}
+				else
+				{
+					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					break;
+				}
+			}
+
+			_selectedPlayers.Clear();
+			UpdatePlayerPanels();
+			UpdateMoveToFavoritesButtonVisibility();
+			SaveFavoritePlayers();
 		}
 	}
 }

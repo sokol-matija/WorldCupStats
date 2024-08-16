@@ -223,6 +223,15 @@ namespace WFA_WorldCupStats {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Move to favorites.
+        /// </summary>
+        internal static string MoveToFavorites {
+            get {
+                return ResourceManager.GetString("MoveToFavorites", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         internal static string Name {

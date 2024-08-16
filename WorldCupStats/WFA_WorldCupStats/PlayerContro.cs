@@ -98,5 +98,9 @@ namespace WFA_WorldCupStats
 			}
 		}
 
+		public void ToggleSelection()
+		{
+			IsSelected = !IsSelected;
+		}
 	}
 }

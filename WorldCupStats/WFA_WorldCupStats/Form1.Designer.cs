@@ -52,6 +52,7 @@
 			printDocument = new System.Drawing.Printing.PrintDocument();
 			printPreviewDialog = new PrintPreviewDialog();
 			statusStrip = new StatusStrip();
+			btnMoveToFavorites = new Button();
 			menuStrip.SuspendLayout();
 			SuspendLayout();
 			// 
@@ -253,11 +254,23 @@
 			statusStrip.TabIndex = 13;
 			statusStrip.Text = "statusStrip1";
 			// 
+			// btnMoveToFavorites
+			// 
+			btnMoveToFavorites.Location = new Point(250, 143);
+			btnMoveToFavorites.Name = "btnMoveToFavorites";
+			btnMoveToFavorites.Size = new Size(218, 40);
+			btnMoveToFavorites.TabIndex = 14;
+			btnMoveToFavorites.Text = "Move To Favorites";
+			btnMoveToFavorites.UseVisualStyleBackColor = true;
+			btnMoveToFavorites.Visible = false;
+			btnMoveToFavorites.Click += btnMoveToFavorites_Click;
+			// 
 			// Form1
 			// 
 			AutoScaleDimensions = new SizeF(12F, 30F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(1818, 1038);
+			Controls.Add(btnMoveToFavorites);
 			Controls.Add(statusStrip);
 			Controls.Add(lblFavoritePlayers);
 			Controls.Add(lblAllPlayers);
@@ -307,5 +320,6 @@
 		private ToolStripMenuItem mnuPrintPreview;
 		private ToolStripMenuItem mnuPrinting;
 		private ToolStripMenuItem mnuPrintStatistics;
+		private Button btnMoveToFavorites;
 	}
 }

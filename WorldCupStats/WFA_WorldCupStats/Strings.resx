@@ -171,6 +171,9 @@
   <data name="MensChampionship" xml:space="preserve">
     <value>Men's Championship</value>
   </data>
+  <data name="MoveToFavorites" xml:space="preserve">
+    <value>Move to favorites</value>
+  </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
   </data>
