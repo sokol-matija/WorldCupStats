@@ -6,11 +6,13 @@ namespace WFA_WorldCupStats
 	{
 		private readonly string _starImagePath = Path.Combine(Application.StartupPath, "Resources", "star.png");
 		private readonly string _defaultPlayerImagePath = Path.Combine(Application.StartupPath, "Resources", "profile.png");
+		private string _customPlayerImagePath;
 
 		public Player Player { get; private set; }
 		private bool _isFavorite;
 		private bool _isSelected;
 		private Color _defaultBackColor;
+
 
 		public bool IsFavorite
 		{
@@ -39,6 +41,22 @@ namespace WFA_WorldCupStats
 			_defaultBackColor = BackColor;
 			LoadImages();
 			UpdateDisplay();
+			SetupContextMenu();
+		}
+
+
+		private void SetupContextMenu()
+		{
+			ContextMenuStrip contextMenu = new ContextMenuStrip();
+			ToolStripMenuItem setImageItem = new ToolStripMenuItem(Strings.SetPlayerImage);
+			setImageItem.Click += SetImageItem_Click;
+			contextMenu.Items.Add(setImageItem);
+			this.ContextMenuStrip = contextMenu;
+		}
+
+		private void SetImageItem_Click(object? sender, EventArgs e)
+		{
+			throw new NotImplementedException();
 		}
 
 		private void LoadImages()

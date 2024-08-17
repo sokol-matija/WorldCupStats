@@ -238,4 +238,7 @@
   <data name="MoveToFavorites" xml:space="preserve">
     <value>Prebaci u favorite</value>
   </data>
+  <data name="SetPlayerImage" xml:space="preserve">
+    <value>Postavi Sliku Igraca</value>
+  </data>
 </root>

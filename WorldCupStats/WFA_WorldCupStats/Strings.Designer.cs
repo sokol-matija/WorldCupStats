@@ -340,6 +340,15 @@ namespace WFA_WorldCupStats {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set Player Image.
+        /// </summary>
+        internal static string SetPlayerImage {
+            get {
+                return ResourceManager.GetString("SetPlayerImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         internal static string SettingsFormTitle {

@@ -210,6 +210,9 @@
   <data name="SelectTeamLabel" xml:space="preserve">
     <value>Select Team</value>
   </data>
+  <data name="SetPlayerImage" xml:space="preserve">
+    <value>Set Player Image</value>
+  </data>
   <data name="SettingsFormTitle" xml:space="preserve">
     <value>Settings</value>
   </data>

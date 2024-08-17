@@ -16,8 +16,43 @@ namespace WFA_WorldCupStats
 		public LogForm()
 		{
 			InitializeComponent();
+			InitializeMenuStrip();
 			SetupContextMenu();
 		}
+
+		private void InitializeMenuStrip()
+		{
+			MenuStrip menuStrip = new MenuStrip();
+			ToolStripMenuItem fileMenuItem = new ToolStripMenuItem("File");
+			ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy All Logs");
+			copyMenuItem.Click += CopyMenuItem_Click;
+
+			fileMenuItem.DropDownItems.Add(copyMenuItem);
+			menuStrip.Items.Add(fileMenuItem);
+
+			this.MainMenuStrip = menuStrip;
+			this.Controls.Add(menuStrip);
+		}
+
+		private void CopyMenuItem_Click(object sender, EventArgs e)
+		{
+			StringBuilder logContent = new StringBuilder();
+			foreach (var item in listBoxLogs.Items)
+			{
+				logContent.AppendLine(item.ToString());
+			}
+
+			if (logContent.Length > 0)
+			{
+				Clipboard.SetText(logContent.ToString());
+				MessageBox.Show("All log messages have been copied to the clipboard.", "Copy Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
+			else
+			{
+				MessageBox.Show("There are no log messages to copy.", "No Content", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
+		}
+
 
 		private void SetupContextMenu()
 		{

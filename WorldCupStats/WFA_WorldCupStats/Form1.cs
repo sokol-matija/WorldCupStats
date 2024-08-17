@@ -65,12 +65,22 @@ namespace WFA_WorldCupStats
 			// Promjena jezika
 			ChangeLanguage(_selectedLanguage);
 
+			await LoadChampionshipData();
 			// Uèitavanje podataka za odabrano prvenstvo
 			ClearSelection();
-			await LoadChampionshipData();
 
 			// Ažuriranje UI-a
 			ApplyLocalization();
+
+			await LoadPlayerData();
+		}
+
+		private async Task LoadPlayerData()
+		{
+			if (cmbTeams.SelectedItem is Team selectedTeam)
+			{
+				await LoadPlayerDetails(selectedTeam.FifaCode);
+			}
 		}
 
 		private void ChangeLanguage(string language)
@@ -248,7 +258,7 @@ namespace WFA_WorldCupStats
 				_allPlayers = await _dataProvider.GetPlayersByTeamAsync(fifaCode, _selectedChampionship.ToLower());
 				logForm.Log($"Loaded {_allPlayers.Count} players for team {fifaCode}");
 
-				_favoritePlayers.Clear();
+				_favoritePlayers = new List<PlayerControl>(); // Initialize _favoritePlayers
 
 				await LoadFavoritePlayers(fifaCode);
 
@@ -285,9 +295,9 @@ namespace WFA_WorldCupStats
 
 		private void UpdatePlayerPanels()
 		{
-			if (pnlAllPlayers == null || pnlFavoritePlayers == null || _allPlayers == null)
+			if (_allPlayers == null)
 			{
-				logForm?.Log("One or more required objects are null.");
+				logForm.Log("_allPlayers is null. Cannot update player panels.");
 				return;
 			}
 
@@ -296,31 +306,15 @@ namespace WFA_WorldCupStats
 
 			foreach (var player in _allPlayers)
 			{
-				if (player == null)
-				{
-					logForm?.Log("Encountered a null player in _allPlayers.");
-					continue;
-				}
-
-				var isFavorite = _favoritePlayers?.Any(fp => fp?.Player?.Name == player.Name) ?? false;
-				var isSelected = _selectedPlayers?.Any(sp => sp?.Player?.Name == player.Name) ?? false;
-
-				var playerControl = new PlayerControl(player)
-				{
-					IsFavorite = isFavorite,
-					IsSelected = isSelected
-				};
+				var isFavorite = _favoritePlayers?.Any(fp => fp.Player.Name == player.Name) ?? false;
+				var playerControl = new PlayerControl(player) { IsFavorite = isFavorite };
 				playerControl.MouseDown += PlayerControl_MouseDown;
 
 				pnlAllPlayers.Controls.Add(playerControl);
 
 				if (isFavorite)
 				{
-					var favPlayerControl = new PlayerControl(player)
-					{
-						IsFavorite = true,
-						IsSelected = isSelected
-					};
+					var favPlayerControl = new PlayerControl(player) { IsFavorite = true };
 					favPlayerControl.MouseDown += PlayerControl_MouseDown;
 					pnlFavoritePlayers.Controls.Add(favPlayerControl);
 				}
@@ -328,9 +322,8 @@ namespace WFA_WorldCupStats
 
 			ArrangePanelControls(pnlAllPlayers);
 			ArrangePanelControls(pnlFavoritePlayers);
-			UpdateMoveToFavoritesButtonVisibility();
 
-			logForm?.Log($"Updated player panels. All players: {pnlAllPlayers.Controls.Count}, Favorite players: {pnlFavoritePlayers.Controls.Count}, Selected players: {_selectedPlayers.Count}");
+			logForm.Log($"Updated player panels. All players: {pnlAllPlayers.Controls.Count}, Favorite players: {pnlFavoritePlayers.Controls.Count}");
 		}
 		private void ArrangePanelControls(Panel panel)
 		{
