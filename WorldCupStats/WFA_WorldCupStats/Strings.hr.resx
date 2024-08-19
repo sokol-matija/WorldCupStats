@@ -241,4 +241,16 @@
   <data name="SetPlayerImage" xml:space="preserve">
     <value>Postavi Sliku Igraca</value>
   </data>
+  <data name="AddToFavorites" xml:space="preserve">
+    <value>Dodaj u favorite</value>
+  </data>
+  <data name="Deselect" xml:space="preserve">
+    <value>Odznaci</value>
+  </data>
+  <data name="RemoveFromFavorites" xml:space="preserve">
+    <value>Ukloni iz favorita</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Oznaci</value>
+  </data>
 </root>

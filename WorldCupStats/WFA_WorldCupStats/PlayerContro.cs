@@ -11,16 +11,24 @@ namespace WFA_WorldCupStats
 		public Player Player { get; private set; }
 		private bool _isFavorite;
 		private bool _isSelected;
+		private ContextMenuStrip _contextMenu;
 		private Color _defaultBackColor;
 
+		public event EventHandler<EventArgs> FavoriteToggled;
+		public event EventHandler<EventArgs> SelectionToggled;
 
 		public bool IsFavorite
 		{
 			get => _isFavorite;
 			set
 			{
-				_isFavorite = value;
-				UpdateFavoriteStatus();
+				if (_isFavorite != value)
+				{
+					_isFavorite = value;
+					UpdateFavoriteStatus();
+					UpdateContextMenu();
+					OnFavoriteToggled();
+				}
 			}
 		}
 
@@ -29,8 +37,13 @@ namespace WFA_WorldCupStats
 			get => _isSelected;
 			set
 			{
-				_isSelected = value;
-				UpdateSelectionStatus();
+				if (_isSelected != value)
+				{
+					_isSelected = value;
+					UpdateSelectionStatus();
+					UpdateContextMenu();
+					OnSelectionToggled();
+				}
 			}
 		}
 
@@ -41,24 +54,38 @@ namespace WFA_WorldCupStats
 			_defaultBackColor = BackColor;
 			LoadImages();
 			UpdateDisplay();
-			SetupContextMenu();
+			CreateContextMenu();
+			this.MouseDown += PlayerControl_MouseDown; 
 		}
 
-
-		private void SetupContextMenu()
+		private void CreateContextMenu()
 		{
-			ContextMenuStrip contextMenu = new ContextMenuStrip();
+			_contextMenu = new ContextMenuStrip();
+			UpdateContextMenu();
+			this.ContextMenuStrip = _contextMenu; 
+		}
+
+		private void UpdateContextMenu()
+		{
+			_contextMenu.Items.Clear();
+
 			ToolStripMenuItem setImageItem = new ToolStripMenuItem(Strings.SetPlayerImage);
 			setImageItem.Click += SetImageItem_Click;
-			contextMenu.Items.Add(setImageItem);
-			this.ContextMenuStrip = contextMenu;
+			_contextMenu.Items.Add(setImageItem);
+
+			var toggleFavoriteItem = new ToolStripMenuItem(IsFavorite ? Strings.RemoveFromFavorites : Strings.AddToFavorites);
+			toggleFavoriteItem.Click += (sender, e) => IsFavorite = !IsFavorite;
+			_contextMenu.Items.Add(toggleFavoriteItem);
+
+			var toggleSelectItem = new ToolStripMenuItem(IsSelected ? Strings.Deselect : Strings.Select);
+			toggleSelectItem.Click += (sender, e) => IsSelected = !IsSelected;
+			_contextMenu.Items.Add(toggleSelectItem);
 		}
 
 		private void SetImageItem_Click(object? sender, EventArgs e)
 		{
 			throw new NotImplementedException();
 		}
-
 		private void LoadImages()
 		{
 			try
@@ -80,7 +107,6 @@ namespace WFA_WorldCupStats
 				MessageBox.Show($"Error loading images: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
-
 		private void UpdateDisplay()
 		{
 			lblName.Text = Player.Name;
@@ -99,26 +125,38 @@ namespace WFA_WorldCupStats
 
 		private void UpdateSelectionStatus()
 		{
-			this.BackColor = _isSelected ? Color.LightBlue : _defaultBackColor;
+			this.BackColor = _isSelected ? Color.LightBlue : _defaultBackColor; 
 		}
-
 
 		public void ApplyLocalization()
 		{
 			UpdateDisplay();
 		}
-
 		private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Left)
 			{
 				DoDragDrop(this, DragDropEffects.Move);
 			}
+			else if (e.Button == MouseButtons.Right)
+			{
+				UpdateContextMenu(); // Update before showing
+				_contextMenu.Show(this, e.Location);
+			}
 		}
 
-		public void ToggleSelection()
+
+
+		protected virtual void OnFavoriteToggled()
 		{
-			IsSelected = !IsSelected;
+			FavoriteToggled?.Invoke(this, EventArgs.Empty);
 		}
+
+		protected virtual void OnSelectionToggled()
+		{
+			SelectionToggled?.Invoke(this, EventArgs.Empty);
+		}
+
 	}
+
 }

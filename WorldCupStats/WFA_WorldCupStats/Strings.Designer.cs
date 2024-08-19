@@ -61,6 +61,15 @@ namespace WFA_WorldCupStats {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add To Favorites.
+        /// </summary>
+        internal static string AddToFavorites {
+            get {
+                return ResourceManager.GetString("AddToFavorites", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All Players.
         /// </summary>
         internal static string AllPlayersLabel {
@@ -111,6 +120,15 @@ namespace WFA_WorldCupStats {
         internal static string CroatianLanguage {
             get {
                 return ResourceManager.GetString("CroatianLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deselect.
+        /// </summary>
+        internal static string Deselect {
+            get {
+                return ResourceManager.GetString("Deselect", resourceCulture);
             }
         }
         
@@ -304,11 +322,29 @@ namespace WFA_WorldCupStats {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Remove From Favorites.
+        /// </summary>
+        internal static string RemoveFromFavorites {
+            get {
+                return ResourceManager.GetString("RemoveFromFavorites", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
         internal static string SaveButton {
             get {
                 return ResourceManager.GetString("SaveButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select.
+        /// </summary>
+        internal static string Select {
+            get {
+                return ResourceManager.GetString("Select", resourceCulture);
             }
         }
         

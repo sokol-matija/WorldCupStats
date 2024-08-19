@@ -30,49 +30,49 @@ namespace WFA_WorldCupStats
 
 		private async void LoadInitialSettings()
 		{
-			string championship = await _dataProvider.LoadSettingsAsync("Championship");
-			string language = await _dataProvider.LoadSettingsAsync("Language");
+			_selectedChampionship = await _dataProvider.LoadSettingsAsync("Championship");
+			_selectedLanguage = await _dataProvider.LoadSettingsAsync("Language");
 			_favoriteTeam = await _dataProvider.LoadFavoriteTeamAsync();
 
-			logForm.Log($"Loaded settings - Championship: {championship}, Language: {language}, Favorite Team: {_favoriteTeam}");
+			logForm.Log($"Loaded settings - Championship: {_selectedChampionship}, Language: {_selectedLanguage}, Favorite Team: {_favoriteTeam}");
 
-			if (string.IsNullOrEmpty(championship) || string.IsNullOrEmpty(language))
+			if (string.IsNullOrEmpty(_selectedChampionship) || string.IsNullOrEmpty(_selectedLanguage))
 			{
-				using (var settingsForm = new InitialSettingsForm(_dataProvider))
+				logForm.Log("Initial settings not found. Showing settings form.");
+				if (await ShowInitialSettingsForm())
 				{
-					if (settingsForm.ShowDialog() == DialogResult.OK)
-					{
-						_selectedChampionship = await _dataProvider.LoadSettingsAsync("Championship");
-						_selectedLanguage = await _dataProvider.LoadSettingsAsync("Language");
-						await ApplySettings();
-					}
-					else
-					{
-						Application.Exit();
-					}
+					await ApplySettings();
+				}
+				else
+				{
+					Application.Exit();
 				}
 			}
 			else
 			{
-				_selectedChampionship = championship;
-				_selectedLanguage = language;
 				await ApplySettings();
 			}
 		}
 
+		private async Task<bool> ShowInitialSettingsForm()
+		{
+			using (var settingsForm = new InitialSettingsForm(_dataProvider))
+			{
+				if (settingsForm.ShowDialog() == DialogResult.OK)
+				{
+					_selectedChampionship = await _dataProvider.LoadSettingsAsync("Championship");
+					_selectedLanguage = await _dataProvider.LoadSettingsAsync("Language");
+					return true;
+				}
+			}
+			return false;
+		}
+
 		private async Task ApplySettings()
 		{
-			// Promjena jezika
 			ChangeLanguage(_selectedLanguage);
-
 			await LoadChampionshipData();
-			// Uèitavanje podataka za odabrano prvenstvo
-			ClearSelection();
-
-			// Ažuriranje UI-a
 			ApplyLocalization();
-
-			await LoadPlayerData();
 		}
 
 		private async Task LoadPlayerData()
@@ -85,6 +85,7 @@ namespace WFA_WorldCupStats
 
 		private void ChangeLanguage(string language)
 		{
+			logForm.Log($"Changing language to: {language}");
 			if (language == "hr" || language == "Croatian" || language == "Hrvatski")
 			{
 				Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("hr-HR");
@@ -154,41 +155,22 @@ namespace WFA_WorldCupStats
 					}
 				};
 
-
 				if (!string.IsNullOrEmpty(_favoriteTeam))
 				{
 					var team = teams.FirstOrDefault(t => t.FifaCode == _favoriteTeam);
 					if (team != null)
 					{
-						logForm.Log($"Found matching team: {team.Country} ({team.FifaCode})");
 						cmbTeams.SelectedValue = team.FifaCode;
 					}
-					else
-					{
-						logForm.Log($"No matching team found for FIFA code: {_favoriteTeam}");
-					}
-				}
-				else
-				{
-					logForm.Log("No favorite team saved");
-				}
-
-				if (cmbTeams.SelectedItem is Team selectedTeam)
-				{
-					logForm.Log($"Currently selected team: {selectedTeam.Country} ({selectedTeam.FifaCode})");
-				}
-				else
-				{
-					logForm.Log("No team currently selected");
 				}
 
 				var matches = await _dataProvider.GetMatchesAsync(_selectedChampionship.ToLower());
 				UpdateMatchesList(matches);
-
 				await LoadAndDisplayStatistics();
 			}
 			catch (Exception ex)
 			{
+				logForm.Log($"Error loading championship data: {ex.Message}");
 				MessageBox.Show($"Error loading championship data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
@@ -258,10 +240,7 @@ namespace WFA_WorldCupStats
 				_allPlayers = await _dataProvider.GetPlayersByTeamAsync(fifaCode, _selectedChampionship.ToLower());
 				logForm.Log($"Loaded {_allPlayers.Count} players for team {fifaCode}");
 
-				_favoritePlayers = new List<PlayerControl>(); // Initialize _favoritePlayers
-
 				await LoadFavoritePlayers(fifaCode);
-
 				UpdatePlayerPanels();
 			}
 			catch (Exception ex)
@@ -274,6 +253,7 @@ namespace WFA_WorldCupStats
 				ShowLoadingIndicator(false);
 			}
 		}
+
 
 		private void ShowLoadingIndicator(bool isLoading)
 		{
@@ -295,28 +275,23 @@ namespace WFA_WorldCupStats
 
 		private void UpdatePlayerPanels()
 		{
-			if (_allPlayers == null)
-			{
-				logForm.Log("_allPlayers is null. Cannot update player panels.");
-				return;
-			}
-
 			pnlAllPlayers.Controls.Clear();
 			pnlFavoritePlayers.Controls.Clear();
 
 			foreach (var player in _allPlayers)
 			{
-				var isFavorite = _favoritePlayers?.Any(fp => fp.Player.Name == player.Name) ?? false;
+				var isFavorite = _favoritePlayers.Any(fp => fp.Player.Name == player.Name);
 				var playerControl = new PlayerControl(player) { IsFavorite = isFavorite };
-				playerControl.MouseDown += PlayerControl_MouseDown;
-
-				pnlAllPlayers.Controls.Add(playerControl);
+				playerControl.FavoriteToggled += PlayerControl_FavoriteToggled;
+				playerControl.SelectionToggled += PlayerControl_SelectionToggled;
 
 				if (isFavorite)
 				{
-					var favPlayerControl = new PlayerControl(player) { IsFavorite = true };
-					favPlayerControl.MouseDown += PlayerControl_MouseDown;
-					pnlFavoritePlayers.Controls.Add(favPlayerControl);
+					pnlFavoritePlayers.Controls.Add(playerControl);
+				}
+				else
+				{
+					pnlAllPlayers.Controls.Add(playerControl);
 				}
 			}
 
@@ -325,38 +300,45 @@ namespace WFA_WorldCupStats
 
 			logForm.Log($"Updated player panels. All players: {pnlAllPlayers.Controls.Count}, Favorite players: {pnlFavoritePlayers.Controls.Count}");
 		}
+
+		private async void PlayerControl_FavoriteToggled(object sender, EventArgs e)
+		{
+			if (sender is PlayerControl playerControl)
+			{
+				await ToggleFavoritePlayer(playerControl);
+			}
+		}
+
+		private void PlayerControl_SelectionToggled(object sender, EventArgs e)
+		{
+			if (sender is PlayerControl playerControl)
+			{
+				if (playerControl.IsSelected)
+				{
+					if (!_selectedPlayers.Contains(playerControl))
+					{
+						_selectedPlayers.Add(playerControl);
+					}
+				}
+				else
+				{
+					_selectedPlayers.Remove(playerControl);
+				}
+
+				UpdateMoveToFavoritesButtonVisibility();
+				logForm.Log($"Player {playerControl.Player.Name} {(playerControl.IsSelected ? "selected" : "deselected")}. Total selected: {_selectedPlayers.Count}");
+			}
+		}
+
 		private void ArrangePanelControls(Panel panel)
 		{
 			int yPosition = 0;
 			foreach (Control control in panel.Controls)
 			{
 				control.Location = new Point(0, yPosition);
-				yPosition += control.Height + 5; // 5 piksela razmaka
+				yPosition += control.Height + 5; // 5 pixels spacing
 			}
-		}
-
-		private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
-		{
-			if (e.Button == MouseButtons.Right)
-			{
-				var playerControl = (PlayerControl)sender;
-				ShowPlayerContextMenu(playerControl, e.Location);
-			}
-		}
-
-		private void ShowPlayerContextMenu(PlayerControl playerControl, Point location)
-		{
-			var contextMenu = new ContextMenuStrip();
-
-			var toggleFavoriteItem = new ToolStripMenuItem(playerControl.IsFavorite ? "Remove from favorites" : "Add to favorites");
-			toggleFavoriteItem.Click += (sender, e) => ToggleFavoritePlayer(playerControl);
-			contextMenu.Items.Add(toggleFavoriteItem);
-
-			var toggleSelectItem = new ToolStripMenuItem(playerControl.IsSelected ? "Deselect" : "Select");
-			toggleSelectItem.Click += (sender, e) => ToggleSelectPlayer(playerControl);
-			contextMenu.Items.Add(toggleSelectItem);
-
-			contextMenu.Show(playerControl, location);
+			panel.Refresh();
 		}
 
 		private void ToggleSelectPlayer(PlayerControl playerControl)
@@ -404,37 +386,32 @@ namespace WFA_WorldCupStats
 		{
 			if (playerControl.IsFavorite)
 			{
-				_favoritePlayers.RemoveAll(pc => pc.Player.Name == playerControl.Player.Name);
-				playerControl.IsFavorite = false;
-				logForm.Log($"Removed player from favorites: {playerControl.Player.Name}");
-
-				// We no longer need to manually remove the control from pnlFavoritePlayers
-				// as UpdatePlayerPanels will handle this for us
-			}
-			else
-			{
-				if (_favoritePlayers.Count < 3)
-				{
-					_favoritePlayers.Add(playerControl);
-					playerControl.IsFavorite = true;
-					logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
-
-					// We no longer need to manually add the control to pnlFavoritePlayers
-					// as UpdatePlayerPanels will handle this for us
-				}
-				else
+				if (_favoritePlayers.Count >= 3)
 				{
 					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					playerControl.IsFavorite = false; // Revert the change
 					logForm.Log("Attempt to add more than 3 favorite players");
 					return;
 				}
+				_favoritePlayers.Add(playerControl);
+				pnlAllPlayers.Controls.Remove(playerControl);
+				pnlFavoritePlayers.Controls.Add(playerControl);
+				logForm.Log($"Added player to favorites: {playerControl.Player.Name}");
+			}
+			else
+			{
+				_favoritePlayers.Remove(playerControl);
+				pnlFavoritePlayers.Controls.Remove(playerControl);
+				pnlAllPlayers.Controls.Add(playerControl);
+				logForm.Log($"Removed player from favorites: {playerControl.Player.Name}");
 			}
 
-			// Update both panels to reflect the changes
-			UpdatePlayerPanels();
+			ArrangePanelControls(pnlAllPlayers);
+			ArrangePanelControls(pnlFavoritePlayers);
 
 			await SaveFavoritePlayers();
 		}
+
 
 		private async Task SaveFavoritePlayers()
 		{
@@ -526,7 +503,6 @@ namespace WFA_WorldCupStats
 			{
 				logForm.Log($"Team changed to: {selectedTeam.Country} ({selectedTeam.FifaCode})");
 				await _dataProvider.SaveFavoriteTeamAsync(selectedTeam.FifaCode);
-				ClearSelection(); // Add this line
 				await LoadPlayerDetails(selectedTeam.FifaCode);
 			}
 		}
@@ -576,7 +552,6 @@ namespace WFA_WorldCupStats
 				{
 					_selectedChampionship = await _dataProvider.LoadSettingsAsync("Championship");
 					_selectedLanguage = await _dataProvider.LoadSettingsAsync("Language");
-					ChangeLanguage(_selectedLanguage);  // Add this line
 					await ApplySettings();
 				}
 			}
