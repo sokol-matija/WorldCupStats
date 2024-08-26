@@ -25,8 +25,7 @@ namespace WFA_WorldCupStats
 				if (_isFavorite != value)
 				{
 					_isFavorite = value;
-					UpdateFavoriteStatus();
-					UpdateContextMenu();
+					UpdateStatus();
 					OnFavoriteToggled();
 				}
 			}
@@ -40,8 +39,7 @@ namespace WFA_WorldCupStats
 				if (_isSelected != value)
 				{
 					_isSelected = value;
-					UpdateSelectionStatus();
-					UpdateContextMenu();
+					UpdateStatus();
 					OnSelectionToggled();
 				}
 			}
@@ -53,85 +51,93 @@ namespace WFA_WorldCupStats
 			InitializeComponent();
 			_defaultBackColor = BackColor;
 			LoadImages();
-			UpdateDisplay();
 			CreateContextMenu();
-			this.MouseDown += PlayerControl_MouseDown; 
+			this.MouseDown += PlayerControl_MouseDown;
+			ApplyLocalization();
 		}
 
 		private void CreateContextMenu()
 		{
 			_contextMenu = new ContextMenuStrip();
-			UpdateContextMenu();
-			this.ContextMenuStrip = _contextMenu; 
+			this.ContextMenuStrip = _contextMenu;
 		}
 
 		private void UpdateContextMenu()
 		{
 			_contextMenu.Items.Clear();
 
-			ToolStripMenuItem setImageItem = new ToolStripMenuItem(Strings.SetPlayerImage);
-			setImageItem.Click += SetImageItem_Click;
-			_contextMenu.Items.Add(setImageItem);
-
-			var toggleFavoriteItem = new ToolStripMenuItem(IsFavorite ? Strings.RemoveFromFavorites : Strings.AddToFavorites);
-			toggleFavoriteItem.Click += (sender, e) => IsFavorite = !IsFavorite;
-			_contextMenu.Items.Add(toggleFavoriteItem);
-
-			var toggleSelectItem = new ToolStripMenuItem(IsSelected ? Strings.Deselect : Strings.Select);
-			toggleSelectItem.Click += (sender, e) => IsSelected = !IsSelected;
-			_contextMenu.Items.Add(toggleSelectItem);
+			_contextMenu.Items.Add(CreateMenuItem(Strings.SetPlayerImage, SetImageItem_Click));
+			_contextMenu.Items.Add(CreateMenuItem(IsFavorite ? Strings.RemoveFromFavorites : Strings.AddToFavorites, (s, e) => IsFavorite = !IsFavorite));
+			_contextMenu.Items.Add(CreateMenuItem(IsSelected ? Strings.Deselect : Strings.Select, (s, e) => IsSelected = !IsSelected));
 		}
 
-		private void SetImageItem_Click(object? sender, EventArgs e)
+		private ToolStripMenuItem CreateMenuItem(string text, EventHandler clickHandler)
 		{
-			throw new NotImplementedException();
+			var item = new ToolStripMenuItem(text);
+			item.Click += clickHandler;
+			return item;
 		}
+
+		private void SetImageItem_Click(object sender, EventArgs e)
+		{
+			using (OpenFileDialog openFileDialog = new OpenFileDialog())
+			{
+				openFileDialog.Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
+				openFileDialog.Title = Strings.SetPlayerImage;
+
+				if (openFileDialog.ShowDialog() == DialogResult.OK)
+				{
+					_customPlayerImagePath = openFileDialog.FileName;
+					LoadPlayerImage();
+				}
+			}
+		}
+
 		private void LoadImages()
 		{
 			try
 			{
-				if (File.Exists(_starImagePath))
-				{
-					picFavorite.Image = Image.FromFile(_starImagePath);
-					picFavorite.SizeMode = PictureBoxSizeMode.Zoom;
-				}
-
-				if (File.Exists(_defaultPlayerImagePath))
-				{
-					picPlayer.Image = Image.FromFile(_defaultPlayerImagePath);
-					picPlayer.SizeMode = PictureBoxSizeMode.Zoom;
-				}
+				LoadImageToControl(picFavorite, _starImagePath);
+				LoadImageToControl(picPlayer, _customPlayerImagePath ?? _defaultPlayerImagePath);
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"Error loading images: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"{Strings.Error}: {ex.Message}", Strings.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
-		private void UpdateDisplay()
+
+		private void LoadImageToControl(PictureBox pictureBox, string imagePath)
+		{
+			if (File.Exists(imagePath))
+			{
+				pictureBox.Image = Image.FromFile(imagePath);
+				pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+			}
+		}
+
+		private void LoadPlayerImage()
+		{
+			LoadImageToControl(picPlayer, _customPlayerImagePath ?? _defaultPlayerImagePath);
+		}
+
+		public void ApplyLocalization()
 		{
 			lblName.Text = Player.Name;
 			lblNumber.Text = $"{Strings.Number}: {Player.ShirtNumber}";
 			lblPosition.Text = $"{Strings.PlayerPosition}: {Player.Position}";
 			chkCaptain.Text = Strings.Capitain;
 			chkCaptain.Checked = Player.Captain;
-			UpdateFavoriteStatus();
-			UpdateSelectionStatus();
+			UpdateStatus();
+			UpdateContextMenu();
 		}
 
-		private void UpdateFavoriteStatus()
+		private void UpdateStatus()
 		{
 			picFavorite.Visible = _isFavorite;
+			this.BackColor = _isSelected ? Color.LightBlue : _defaultBackColor;
+			UpdateContextMenu();
 		}
 
-		private void UpdateSelectionStatus()
-		{
-			this.BackColor = _isSelected ? Color.LightBlue : _defaultBackColor; 
-		}
-
-		public void ApplyLocalization()
-		{
-			UpdateDisplay();
-		}
 		private void PlayerControl_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Left)
@@ -140,12 +146,9 @@ namespace WFA_WorldCupStats
 			}
 			else if (e.Button == MouseButtons.Right)
 			{
-				UpdateContextMenu(); // Update before showing
 				_contextMenu.Show(this, e.Location);
 			}
 		}
-
-
 
 		protected virtual void OnFavoriteToggled()
 		{
@@ -156,7 +159,5 @@ namespace WFA_WorldCupStats
 		{
 			SelectionToggled?.Invoke(this, EventArgs.Empty);
 		}
-
 	}
-
 }

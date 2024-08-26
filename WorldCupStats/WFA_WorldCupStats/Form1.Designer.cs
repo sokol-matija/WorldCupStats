@@ -138,8 +138,6 @@
 			pnlAllPlayers.Name = "pnlAllPlayers";
 			pnlAllPlayers.Size = new Size(430, 360);
 			pnlAllPlayers.TabIndex = 9;
-			pnlAllPlayers.DragDrop += pnlAllPlayers_DragDrop;
-			pnlAllPlayers.DragEnter += pnlAllPlayers_DragEnter;
 			// 
 			// pnlFavoritePlayers
 			// 
@@ -151,8 +149,6 @@
 			pnlFavoritePlayers.Name = "pnlFavoritePlayers";
 			pnlFavoritePlayers.Size = new Size(430, 412);
 			pnlFavoritePlayers.TabIndex = 10;
-			pnlFavoritePlayers.DragDrop += pnlFavoritePlayers_DragDrop;
-			pnlFavoritePlayers.DragEnter += pnlFavoritePlayers_DragEnter;
 			// 
 			// lblAllPlayers
 			// 
@@ -189,7 +185,7 @@
 			mnuSettings.Name = "mnuSettings";
 			mnuSettings.Size = new Size(105, 34);
 			mnuSettings.Text = "Settings";
-			mnuSettings.Click += settingsToolStripMenuItem_Click;
+			mnuSettings.Click += mnuSettings_Click;
 			// 
 			// mnuPrint
 			// 
@@ -201,38 +197,31 @@
 			// mnuChosePrintType
 			// 
 			mnuChosePrintType.Name = "mnuChosePrintType";
-			mnuChosePrintType.Size = new Size(286, 40);
+			mnuChosePrintType.Size = new Size(315, 40);
 			mnuChosePrintType.Text = "Chose Print Type";
-			mnuChosePrintType.Click += chosePrintType_Click;
 			// 
 			// mnuPrintPreview
 			// 
 			mnuPrintPreview.Name = "mnuPrintPreview";
-			mnuPrintPreview.Size = new Size(286, 40);
+			mnuPrintPreview.Size = new Size(315, 40);
 			mnuPrintPreview.Text = "Print Preview";
-			mnuPrintPreview.Click += printPreview_Click;
 			// 
 			// mnuPrinting
 			// 
 			mnuPrinting.Name = "mnuPrinting";
-			mnuPrinting.Size = new Size(286, 40);
+			mnuPrinting.Size = new Size(315, 40);
 			mnuPrinting.Text = "Print";
-			mnuPrinting.Click += print_Click;
 			// 
 			// mnuPrintStatistics
 			// 
 			mnuPrintStatistics.Name = "mnuPrintStatistics";
-			mnuPrintStatistics.Size = new Size(286, 40);
+			mnuPrintStatistics.Size = new Size(315, 40);
 			mnuPrintStatistics.Text = "Print Statistics";
 			mnuPrintStatistics.Click += printStatistics_Click;
 			// 
 			// printDialog
 			// 
 			printDialog.UseEXDialog = true;
-			// 
-			// printDocument
-			// 
-			printDocument.PrintPage += printDocument_PrintPage;
 			// 
 			// printPreviewDialog
 			// 
@@ -297,29 +286,29 @@
 
 		#endregion
 
-		private ComboBox cmbTeams;
-		private Label lblChooseTeam;
-		private ListBox lstMatches;
-		private ListBox lstYellowCards;
-		private ListBox lstTopScorers;
-		private Label lblMatches;
-		private Label lblYellowCards;
-		private Label lblTopScorers;
-		private Panel pnlAllPlayers;
-		private Panel pnlFavoritePlayers;
-		private Label lblAllPlayers;
-		private Label lblFavoritePlayers;
-		private MenuStrip menuStrip;
-		private PrintDialog printDialog;
-		private System.Drawing.Printing.PrintDocument printDocument;
-		private PrintPreviewDialog printPreviewDialog;
-		private StatusStrip statusStrip;
-		private ToolStripMenuItem mnuSettings;
-		private ToolStripMenuItem mnuPrint;
-		private ToolStripMenuItem mnuChosePrintType;
-		private ToolStripMenuItem mnuPrintPreview;
-		private ToolStripMenuItem mnuPrinting;
-		private ToolStripMenuItem mnuPrintStatistics;
-		private Button btnMoveToFavorites;
+		public ComboBox cmbTeams;
+		public Label lblChooseTeam;
+		public ListBox lstMatches;
+		public ListBox lstYellowCards;
+		public ListBox lstTopScorers;
+		public Label lblMatches;
+		public Label lblYellowCards;
+		public Label lblTopScorers;
+		public Panel pnlAllPlayers;
+		public Panel pnlFavoritePlayers;
+		public Label lblAllPlayers;
+		public Label lblFavoritePlayers;
+		public MenuStrip menuStrip;
+		public PrintDialog printDialog;
+		public System.Drawing.Printing.PrintDocument printDocument;
+		public PrintPreviewDialog printPreviewDialog;
+		public StatusStrip statusStrip;
+		public ToolStripMenuItem mnuSettings;
+		public ToolStripMenuItem mnuPrint;
+		public ToolStripMenuItem mnuChosePrintType;
+		public ToolStripMenuItem mnuPrintPreview;
+		public ToolStripMenuItem mnuPrinting;
+		public ToolStripMenuItem mnuPrintStatistics;
+		public Button btnMoveToFavorites;
 	}
 }
