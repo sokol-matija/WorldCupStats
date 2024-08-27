@@ -92,7 +92,7 @@ namespace WFA_WorldCupStats
 			_form.Invoke((MethodInvoker)delegate
 			{
 				_form.cmbTeams.DataSource = teams;
-				_form.cmbTeams.DisplayMember = "Country";
+				_form.cmbTeams.DisplayMember = "DisplayName";
 				_form.cmbTeams.ValueMember = "FifaCode";
 
 				if (!string.IsNullOrEmpty(favoriteTeam))
@@ -139,13 +139,21 @@ namespace WFA_WorldCupStats
 
 				foreach (var player in allPlayers)
 				{
-					var isFavorite = favoritePlayers.Any(fp => fp.Player.Name == player.Name);
-					var playerControl = new PlayerControl(player) { IsFavorite = isFavorite };
-					playerControl.FavoriteToggled += _form.PlayerControl_FavoriteToggled;
+					var existingControl = favoritePlayers.FirstOrDefault(fp => fp.Player.Name == player.Name);
+					PlayerControl playerControl;
 
-					playerControl.SelectionToggled += _form.PlayerControl_SelectionToggled;
+					if (existingControl != null)
+					{
+						playerControl = existingControl;
+					}
+					else
+					{
+						playerControl = new PlayerControl(player);
+						playerControl.FavoriteToggled += _form.PlayerControl_FavoriteToggled;
+						playerControl.SelectionToggled += _form.PlayerControl_SelectionToggled;
+					}
 
-					if (isFavorite)
+					if (playerControl.IsFavorite)
 					{
 						_form.pnlFavoritePlayers.Controls.Add(playerControl);
 					}

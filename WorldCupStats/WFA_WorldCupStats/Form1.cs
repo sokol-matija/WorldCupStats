@@ -15,10 +15,10 @@ namespace WFA_WorldCupStats
 		{
 			InitializeComponent();
 			_dataProvider = DataProviderFactory.CreateDataProvider();
-			_settingsManager = new SettingsManager(_dataProvider);
+			_logForm = new LogForm();
+			_settingsManager = new SettingsManager(_dataProvider, _logForm);
 			_playerManager = new PlayerManager(_dataProvider);
 			_uiManager = new UIManager(this);
-			_logForm = new LogForm();
 			_logForm.Show();
 
 			InitializeAsync();

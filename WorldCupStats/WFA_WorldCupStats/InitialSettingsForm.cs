@@ -10,11 +10,13 @@ namespace WFA_WorldCupStats
 	public partial class InitialSettingsForm : Form
 	{
 		private readonly IDataProvider _dataProvider;
+		private readonly LogForm _logForm;
 
-		public InitialSettingsForm(IDataProvider dataProvider)
+		public InitialSettingsForm(IDataProvider dataProvider, LogForm logForm)
 		{
 			InitializeComponent();
 			_dataProvider = dataProvider;
+			_logForm = logForm;
 			ApplyLocalization();
 			LoadSettingsAsync();
 		}
@@ -41,14 +43,21 @@ namespace WFA_WorldCupStats
 
 		private async Task LoadSettingsAsync()
 		{
-			string championship = await _dataProvider.LoadSettingsAsync("Championship");
-			string language = await _dataProvider.LoadSettingsAsync("Language");
-
-			SetCurrentSettings(championship, language);
-
-			if (!string.IsNullOrEmpty(language))
+			try
 			{
-				ChangeLanguage(language);
+				string championship = await _dataProvider.LoadSettingsAsync("Championship");
+				string language = await _dataProvider.LoadSettingsAsync("Language");
+
+				SetCurrentSettings(championship, language);
+
+				if (!string.IsNullOrEmpty(language))
+				{
+					ChangeLanguage(language);
+				}
+			}
+			catch (Exception ex)
+			{
+				_logForm.Log($"Error loading settings: {ex.Message}");
 			}
 		}
 
@@ -69,15 +78,23 @@ namespace WFA_WorldCupStats
 				return;
 			}
 
-			string championship = cmbChampionship.SelectedItem.ToString() == Strings.MensChampionship ? "men" : "women";
-			string language = cmbLanguage.SelectedItem.ToString() == Strings.EnglishLanguage ? "English" : "Croatian";
+			try
+			{
+				string championship = cmbChampionship.SelectedItem.ToString() == Strings.MensChampionship ? "men" : "women";
+				string language = cmbLanguage.SelectedItem.ToString() == Strings.EnglishLanguage ? "English" : "Croatian";
 
-			await _dataProvider.SaveSettingsAsync("Championship", championship);
-			await _dataProvider.SaveSettingsAsync("Language", language);
-			ChangeLanguage(language);
+				await _dataProvider.SaveSettingsAsync("Championship", championship);
+				await _dataProvider.SaveSettingsAsync("Language", language);
+				ChangeLanguage(language);
 
-			DialogResult = DialogResult.OK;
-			Close();
+				DialogResult = DialogResult.OK;
+				Close();
+			}
+			catch (Exception ex)
+			{
+				_logForm.Log($"Error saving settings: {ex.Message}");
+				MessageBox.Show($"Error saving settings: {ex.Message}", Strings.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 	}
 }

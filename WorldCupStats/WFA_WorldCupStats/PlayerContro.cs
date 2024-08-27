@@ -61,7 +61,7 @@ namespace WFA_WorldCupStats
 			_contextMenu = new ContextMenuStrip();
 			this.ContextMenuStrip = _contextMenu;
 		}
-
+		
 		private void UpdateContextMenu()
 		{
 			_contextMenu.Items.Clear();

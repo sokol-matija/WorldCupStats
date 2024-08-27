@@ -31,5 +31,6 @@ namespace DataLayer.Models
 		public int GoalsAgainst { get; set; }
 		[JsonProperty("goal_differential")]
 		public int GoalDifferential { get; set; }
+		public string DisplayName => $"{Country} ({FifaCode})";
 	}
 }

@@ -88,7 +88,6 @@ namespace DataLayer
 		public Task SaveFavoritePlayersAsync(List<string> playerNames) => _localStorageProvider.SaveFavoritePlayersAsync(playerNames);
 		public Task<List<string>> LoadFavoritePlayersAsync() => _localStorageProvider.LoadFavoritePlayersAsync();
 
-		// Metode za statistiku
 		public async Task<List<PlayerStats>> GetTopScorersAsync(string gender, int count)
 		{
 			var matches = await GetMatchesAsync(gender);
@@ -160,7 +159,6 @@ namespace DataLayer
 
 			var updatedJson = JsonConvert.SerializeObject(favorites);
 
-			// Osigurajmo da Assets folder postoji
 			Directory.CreateDirectory(AssetsFolderPath);
 
 			await File.WriteAllTextAsync(favoritesFilePath, updatedJson);
