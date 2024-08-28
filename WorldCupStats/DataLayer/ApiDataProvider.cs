@@ -14,6 +14,8 @@ namespace DataLayer
 		private const string BaseUrl = "https://worldcup-vua.nullbit.hr";
 		private const string AssetsFolderPath = ".\\assets\\";
 		private const string FavoritesFileName = "favorites.json";
+		private const string MenFavoritesFileName = "men_favorites.json";
+		private const string WomenFavoritesFileName = "women_favorites.json";
 
 		public ApiDataProvider()
 		{
@@ -206,6 +208,41 @@ namespace DataLayer
 			else
 			{
 				Console.WriteLine("Favorites file not found");
+			}
+			return new List<string>();
+		}
+
+		public async Task SaveFavoritePlayersAsync(string championship, string fifaCode, List<string> playerNames)
+		{
+			var fileName = championship.ToLower() == "men" ? MenFavoritesFileName : WomenFavoritesFileName;
+			var favoritesFilePath = Path.Combine(AssetsFolderPath, fileName);
+			var favorites = new Dictionary<string, List<string>>();
+
+			if (File.Exists(favoritesFilePath))
+			{
+				var json = await File.ReadAllTextAsync(favoritesFilePath);
+				favorites = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json) ?? new Dictionary<string, List<string>>();
+			}
+
+			favorites[fifaCode] = playerNames;
+
+			var updatedJson = JsonConvert.SerializeObject(favorites);
+			await File.WriteAllTextAsync(favoritesFilePath, updatedJson);
+		}
+
+		public async Task<List<string>> LoadFavoritePlayersAsync(string championship, string fifaCode)
+		{
+			var fileName = championship.ToLower() == "men" ? MenFavoritesFileName : WomenFavoritesFileName;
+			var favoritesFilePath = Path.Combine(AssetsFolderPath, fileName);
+
+			if (File.Exists(favoritesFilePath))
+			{
+				var json = await File.ReadAllTextAsync(favoritesFilePath);
+				var favorites = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json);
+				if (favorites != null && favorites.TryGetValue(fifaCode, out var playerNames))
+				{
+					return playerNames;
+				}
 			}
 			return new List<string>();
 		}

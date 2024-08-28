@@ -17,8 +17,8 @@ namespace WFA_WorldCupStats
 			_dataProvider = DataProviderFactory.CreateDataProvider();
 			_logForm = new LogForm();
 			_settingsManager = new SettingsManager(_dataProvider, _logForm);
-			_playerManager = new PlayerManager(_dataProvider);
-			_uiManager = new UIManager(this);
+			_playerManager = new PlayerManager(_dataProvider, _settingsManager, _logForm);
+			_uiManager = new UIManager(this, _logForm);
 			_logForm.Show();
 
 			_playerManager.FavoritePlayersChanged += PlayerManager_FavoritePlayersChanged;
@@ -108,7 +108,7 @@ namespace WFA_WorldCupStats
 			{
 				_uiManager.ShowLoadingIndicator(true);
 				await _playerManager.LoadPlayersAsync(fifaCode, _settingsManager.SelectedChampionship);
-				await _playerManager.LoadFavoritePlayersAsync(fifaCode);
+				await _playerManager.LoadFavoritePlayersAsync();
 				_uiManager.UpdatePlayerPanels(_playerManager.AllPlayers, _playerManager.FavoritePlayers);
 			}
 			catch (Exception ex)

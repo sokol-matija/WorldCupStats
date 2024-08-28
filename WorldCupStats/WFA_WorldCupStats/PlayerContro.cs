@@ -7,6 +7,7 @@ namespace WFA_WorldCupStats
 		private readonly string _starImagePath = Path.Combine(Application.StartupPath, "Resources", "star.png");
 		private readonly string _defaultPlayerImagePath = Path.Combine(Application.StartupPath, "Resources", "profile.png");
 		private string _customPlayerImagePath;
+		private readonly LogForm _logForm;
 
 		public Player Player { get; private set; }
 		private bool _isFavorite;
@@ -45,8 +46,9 @@ namespace WFA_WorldCupStats
 			}
 		}
 
-		public PlayerControl(Player player)
+		public PlayerControl(Player player, LogForm logForm)
 		{
+			_logForm = logForm;
 			Player = player;
 			InitializeComponent();
 			_defaultBackColor = BackColor;

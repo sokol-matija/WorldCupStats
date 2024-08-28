@@ -28,7 +28,9 @@ namespace DataLayer
 		Task SaveFavoritePlayersAsync(string fifaCode, List<string> playerNames);
 		Task<List<string>> LoadFavoritePlayersAsync(string fifaCode);
 
-		//TODO: Is this method needed?
+		Task SaveFavoritePlayersAsync(string championship, string fifaCode, List<string> playerNames);
+		Task<List<string>> LoadFavoritePlayersAsync(string championship, string fifaCode);
+
 		Task SaveFavoritePlayersAsync(List<string> playerNames);
 		Task<List<string>> LoadFavoritePlayersAsync();
 

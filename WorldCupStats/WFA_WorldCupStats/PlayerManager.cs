@@ -5,17 +5,22 @@ namespace WFA_WorldCupStats
 {
 	public class PlayerManager
 	{
+		private readonly LogForm _logForm;
 		private readonly IDataProvider _dataProvider;
+		private readonly SettingsManager _settingsManager;
+
 		public List<Player> AllPlayers { get; private set; }
-		public List<PlayerControl> FavoritePlayers { get; private set; }
+		public HashSet<PlayerControl> FavoritePlayers { get; private set; }
 		public List<PlayerControl> SelectedPlayers { get; private set; }
 		private string CurrentTeamFifaCode { get; set; }
 
-		public PlayerManager(IDataProvider dataProvider)
+		public PlayerManager(IDataProvider dataProvider , SettingsManager settingsManager, LogForm logForm)
 		{
+			_logForm = logForm;
+			_settingsManager = settingsManager;
 			_dataProvider = dataProvider;
 			AllPlayers = new List<Player>();
-			FavoritePlayers = new List<PlayerControl>();
+			FavoritePlayers = new HashSet<PlayerControl>(new PlayerControlComparer());
 			SelectedPlayers = new List<PlayerControl>();
 		}
 
@@ -25,35 +30,40 @@ namespace WFA_WorldCupStats
 			AllPlayers = await _dataProvider.GetPlayersByTeamAsync(fifaCode, championship.ToLower());
 		}
 
-		public async Task LoadFavoritePlayersAsync(string fifaCode)
+		public async Task LoadFavoritePlayersAsync()
 		{
-			var favoritePlayerNames = await _dataProvider.LoadFavoritePlayersAsync(fifaCode);
-			FavoritePlayers = AllPlayers
-				.Where(p => favoritePlayerNames.Contains(p.Name))
-				.Select(p => new PlayerControl(p) { IsFavorite = true })
-				.ToList();
+			var favoritePlayerNames = await _settingsManager.LoadFavoritePlayersAsync();
+
+			FavoritePlayers = new HashSet<PlayerControl>(
+				AllPlayers
+					.Where(p => favoritePlayerNames.Contains(p.Name))
+					.Select(p => new PlayerControl(p, _logForm) { IsFavorite = true }),
+				new PlayerControlComparer()
+			);
+
+			_logForm.Log($"Loaded {FavoritePlayers.Count} favorite players");
 		}
 
 		public async Task ToggleFavoritePlayerAsync(PlayerControl playerControl)
-		{
-			if (playerControl.IsFavorite)
-			{
-				if (FavoritePlayers.Count >= 3)
-				{
-					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
-					playerControl.IsFavorite = false;
-					return;
-				}
-				FavoritePlayers.Add(playerControl);
-			}
-			else
-			{
-				FavoritePlayers.Remove(playerControl);
-			}
+{
+    if (playerControl.IsFavorite)
+    {
+        if (FavoritePlayers.Count >= 3)
+        {
+            MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            playerControl.IsFavorite = false;
+            return;
+        }
+        FavoritePlayers.Add(playerControl);
+    }
+    else
+    {
+        FavoritePlayers.Remove(playerControl);
+    }
 
-			await SaveFavoritePlayersAsync();
-			OnFavoritePlayersChanged();
-		}
+    await SaveFavoritePlayersAsync();
+    OnFavoritePlayersChanged();
+}
 
 		public event EventHandler FavoritePlayersChanged;
 
@@ -83,11 +93,8 @@ namespace WFA_WorldCupStats
 			{
 				if (FavoritePlayers.Count < 3)
 				{
-					if (!FavoritePlayers.Any(fp => fp.Player.Name == playerControl.Player.Name))
-					{
-						playerControl.IsFavorite = true;
-						FavoritePlayers.Add(playerControl);
-					}
+					playerControl.IsFavorite = true;
+					FavoritePlayers.Add(playerControl);
 				}
 				else
 				{
@@ -102,11 +109,8 @@ namespace WFA_WorldCupStats
 
 		private async Task SaveFavoritePlayersAsync()
 		{
-			if (!string.IsNullOrEmpty(CurrentTeamFifaCode))
-			{
-				var favoritePlayerNames = FavoritePlayers.Select(pc => pc.Player.Name).ToList();
-				await _dataProvider.SaveFavoritePlayersAsync(CurrentTeamFifaCode, favoritePlayerNames);
-			}
+			var favoritePlayerNames = FavoritePlayers.Select(pc => pc.Player.Name).Distinct().ToList();
+			await _settingsManager.SaveFavoritePlayersAsync(favoritePlayerNames);
 		}
 	}
 }

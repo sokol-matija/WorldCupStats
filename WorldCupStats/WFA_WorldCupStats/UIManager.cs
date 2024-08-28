@@ -8,10 +8,12 @@ namespace WFA_WorldCupStats
 	public class UIManager
 	{
 		private readonly Form1 _form;
+		private readonly LogForm _logForm;
 
-		public UIManager(Form1 form)
+		public UIManager(Form1 form, LogForm logForm)
 		{
 			_form = form;
+			_logForm = logForm;
 		}
 
 		public void ChangeLanguage(string language)
@@ -130,7 +132,7 @@ namespace WFA_WorldCupStats
 			});
 		}
 
-		public void UpdatePlayerPanels(List<Player> allPlayers, List<PlayerControl> favoritePlayers)
+		public void UpdatePlayerPanels(List<Player> allPlayers, HashSet<PlayerControl> favoritePlayers)
 		{
 			_form.Invoke((MethodInvoker)delegate
 			{
@@ -148,7 +150,7 @@ namespace WFA_WorldCupStats
 					}
 					else
 					{
-						playerControl = new PlayerControl(player);
+						playerControl = new PlayerControl(player, _logForm);
 						playerControl.FavoriteToggled += _form.PlayerControl_FavoriteToggled;
 						playerControl.SelectionToggled += _form.PlayerControl_SelectionToggled;
 					}
