@@ -73,6 +73,7 @@ namespace WFA_WorldCupStats
 			await LoadChampionshipDataAsync();
 			_uiManager.ApplyLocalization();
 
+			// Reset and reload player data
 			_playerManager.ResetPlayers();
 			if (!string.IsNullOrEmpty(_settingsManager.FavoriteTeam))
 			{
