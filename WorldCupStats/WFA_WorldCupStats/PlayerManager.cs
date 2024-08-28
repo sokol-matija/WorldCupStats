@@ -48,7 +48,7 @@ namespace WFA_WorldCupStats
 		{
 			if (playerControl.IsFavorite)
 			{
-				if (FavoritePlayers.Count >= 3)
+				if (FavoritePlayers.Count >= 4)
 				{
 					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
 					playerControl.IsFavorite = false;
