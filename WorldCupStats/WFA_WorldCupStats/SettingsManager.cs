@@ -27,6 +27,14 @@ namespace WFA_WorldCupStats
 			_logForm = logForm;
 		}
 
+
+		public event EventHandler SettingsChanged;
+		protected virtual void OnSettingsChanged()
+		{
+			SettingsChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+
 		public async Task LoadInitialSettingsAsync()
 		{
 			try
@@ -93,6 +101,8 @@ namespace WFA_WorldCupStats
 				SelectedChampionship = championship;
 				SelectedLanguage = language;
 				_logForm.Log($"Settings saved: Championship={championship}, Language={language}");
+				OnSettingsChanged();
+
 			}
 			catch (Exception ex)
 			{

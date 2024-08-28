@@ -23,7 +23,7 @@ namespace WFA_WorldCupStats
 			_logForm.Show();
 
 			_playerManager.FavoritePlayersChanged += PlayerManager_FavoritePlayersChanged;
-
+			_settingsManager.SettingsChanged += SettingsManager_SettingsChanged;
 			InitializeAsync();
 		}
 
@@ -42,6 +42,11 @@ namespace WFA_WorldCupStats
 		private void PlayerManager_FavoritePlayersChanged(object sender, EventArgs e)
 		{
 			_uiManager.UpdatePlayerPanels(_playerManager.AllPlayers, _playerManager.FavoritePlayers);
+		}
+
+		private async void SettingsManager_SettingsChanged(object sender, EventArgs e)
+		{
+			await ApplySettingsAsync();
 		}
 
 		private async void InitializeAsync()
@@ -67,6 +72,12 @@ namespace WFA_WorldCupStats
 			_uiManager.ChangeLanguage(_settingsManager.SelectedLanguage);
 			await LoadChampionshipDataAsync();
 			_uiManager.ApplyLocalization();
+
+			_playerManager.ResetPlayers();
+			if (!string.IsNullOrEmpty(_settingsManager.FavoriteTeam))
+			{
+				await LoadPlayerDetailsAsync(_settingsManager.FavoriteTeam);
+			}
 		}
 
 		private async Task LoadChampionshipDataAsync()
@@ -176,6 +187,65 @@ namespace WFA_WorldCupStats
 		{
 			string report = _uiManager.GenerateStatisticsReport(lstTopScorers, lstYellowCards, lstMatches);
 			_uiManager.ShowPrintPreview(report);
+		}
+
+		private void Panel_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent(typeof(PlayerControl)))
+			{
+				e.Effect = DragDropEffects.Move;
+			}
+		}
+
+		private void PnlAllPlayers_DragDrop(object sender, DragEventArgs e)
+		{
+			PlayerControl playerControl = (PlayerControl)e.Data.GetData(typeof(PlayerControl));
+			if (playerControl != null && playerControl.IsFavorite)
+			{
+				MoveToPnlAllPlayers(playerControl);
+			}
+		}
+
+		private void PnlFavoritePlayers_DragDrop(object sender, DragEventArgs e)
+		{
+			PlayerControl playerControl = (PlayerControl)e.Data.GetData(typeof(PlayerControl));
+			if (playerControl != null && !playerControl.IsFavorite)
+			{
+				MoveToPnlFavoritePlayers(playerControl);
+			}
+		}
+
+		private async void MoveToPnlAllPlayers(PlayerControl playerControl)
+		{
+			if (_playerManager.FavoritePlayers.Contains(playerControl))
+			{
+				_playerManager.FavoritePlayers.Remove(playerControl);
+				pnlFavoritePlayers.Controls.Remove(playerControl);
+				pnlAllPlayers.Controls.Add(playerControl);
+				playerControl.IsFavorite = false;
+				await _playerManager.ToggleFavoritePlayerAsync(playerControl);
+				_uiManager.UpdatePlayerPanels(_playerManager.AllPlayers, _playerManager.FavoritePlayers);
+				_logForm.Log($"Player {playerControl.Player.Name} removed from favorites");
+			}
+		}
+
+		private async void MoveToPnlFavoritePlayers(PlayerControl playerControl)
+		{
+			if (_playerManager.FavoritePlayers.Count < 3)
+			{
+				pnlAllPlayers.Controls.Remove(playerControl);
+				pnlFavoritePlayers.Controls.Add(playerControl);
+				playerControl.IsFavorite = true;
+				_playerManager.FavoritePlayers.Add(playerControl);
+				await _playerManager.ToggleFavoritePlayerAsync(playerControl);
+				_uiManager.UpdatePlayerPanels(_playerManager.AllPlayers, _playerManager.FavoritePlayers);
+				_logForm.Log($"Player {playerControl.Player.Name} added to favorites");
+			}
+			else
+			{
+				MessageBox.Show(Strings.FavoritePlayersLimitReached, Strings.LimitReached, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				_logForm.Log("Attempted to add more than 3 favorite players");
+			}
 		}
 
 		private void HandleException(string message, Exception ex)

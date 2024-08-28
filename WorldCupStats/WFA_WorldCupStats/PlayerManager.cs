@@ -1,4 +1,4 @@
-using DataLayer;
+﻿using DataLayer;
 using DataLayer.Models;
 
 namespace WFA_WorldCupStats
@@ -111,6 +111,14 @@ namespace WFA_WorldCupStats
 		{
 			var favoritePlayerNames = FavoritePlayers.Select(pc => pc.Player.Name).Distinct().ToList();
 			await _settingsManager.SaveFavoritePlayersAsync(favoritePlayerNames);
+		}
+
+		public void ResetPlayers()
+		{
+			AllPlayers.Clear();
+			FavoritePlayers.Clear();
+			SelectedPlayers.Clear();
+			OnFavoritePlayersChanged();
 		}
 	}
 }
