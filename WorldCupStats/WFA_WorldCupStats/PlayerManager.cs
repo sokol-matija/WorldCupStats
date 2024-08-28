@@ -6,10 +6,10 @@ namespace WFA_WorldCupStats
 	public class PlayerManager
 	{
 		private readonly IDataProvider _dataProvider;
-
 		public List<Player> AllPlayers { get; private set; }
 		public List<PlayerControl> FavoritePlayers { get; private set; }
 		public List<PlayerControl> SelectedPlayers { get; private set; }
+		private string CurrentTeamFifaCode { get; set; }
 
 		public PlayerManager(IDataProvider dataProvider)
 		{
@@ -21,6 +21,7 @@ namespace WFA_WorldCupStats
 
 		public async Task LoadPlayersAsync(string fifaCode, string championship)
 		{
+			CurrentTeamFifaCode = fifaCode;
 			AllPlayers = await _dataProvider.GetPlayersByTeamAsync(fifaCode, championship.ToLower());
 		}
 
@@ -51,6 +52,14 @@ namespace WFA_WorldCupStats
 			}
 
 			await SaveFavoritePlayersAsync();
+			OnFavoritePlayersChanged();
+		}
+
+		public event EventHandler FavoritePlayersChanged;
+
+		protected virtual void OnFavoritePlayersChanged()
+		{
+			FavoritePlayersChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		public void ToggleSelectPlayer(PlayerControl playerControl)
@@ -93,8 +102,11 @@ namespace WFA_WorldCupStats
 
 		private async Task SaveFavoritePlayersAsync()
 		{
-			var favoritePlayerNames = FavoritePlayers.Select(pc => pc.Player.Name).ToList();
-			await _dataProvider.SaveFavoritePlayersAsync(favoritePlayerNames);
+			if (!string.IsNullOrEmpty(CurrentTeamFifaCode))
+			{
+				var favoritePlayerNames = FavoritePlayers.Select(pc => pc.Player.Name).ToList();
+				await _dataProvider.SaveFavoritePlayersAsync(CurrentTeamFifaCode, favoritePlayerNames);
+			}
 		}
 	}
 }

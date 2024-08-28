@@ -21,7 +21,14 @@ namespace WFA_WorldCupStats
 			_uiManager = new UIManager(this);
 			_logForm.Show();
 
+			_playerManager.FavoritePlayersChanged += PlayerManager_FavoritePlayersChanged;
+
 			InitializeAsync();
+		}
+
+		private void PlayerManager_FavoritePlayersChanged(object sender, EventArgs e)
+		{
+			_uiManager.UpdatePlayerPanels(_playerManager.AllPlayers, _playerManager.FavoritePlayers);
 		}
 
 		private async void InitializeAsync()
