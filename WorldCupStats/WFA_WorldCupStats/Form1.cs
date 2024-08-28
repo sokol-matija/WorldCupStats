@@ -14,6 +14,7 @@ namespace WFA_WorldCupStats
 		public Form1()
 		{
 			InitializeComponent();
+			InitializeDragAndDrop();
 			_dataProvider = DataProviderFactory.CreateDataProvider();
 			_logForm = new LogForm();
 			_settingsManager = new SettingsManager(_dataProvider, _logForm);
@@ -24,6 +25,18 @@ namespace WFA_WorldCupStats
 			_playerManager.FavoritePlayersChanged += PlayerManager_FavoritePlayersChanged;
 
 			InitializeAsync();
+		}
+
+		private void InitializeDragAndDrop()
+		{
+			pnlAllPlayers.AllowDrop = true;
+			pnlFavoritePlayers.AllowDrop = true;
+
+			// Add event handlers for drag and drop
+			pnlAllPlayers.DragEnter += Panel_DragEnter;
+			pnlAllPlayers.DragDrop += PnlAllPlayers_DragDrop;
+			pnlFavoritePlayers.DragEnter += Panel_DragEnter;
+			pnlFavoritePlayers.DragDrop += PnlFavoritePlayers_DragDrop;
 		}
 
 		private void PlayerManager_FavoritePlayersChanged(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -252,5 +252,11 @@
   </data>
   <data name="Select" xml:space="preserve">
     <value>Oznaci</value>
+  </data>
+  <data name="FavoritePlayersLimitReached" xml:space="preserve">
+    <value>Mozete imati samo do 3 igraca u favoritima</value>
+  </data>
+  <data name="LimitReached" xml:space="preserve">
+    <value>Litmit dosegnut</value>
   </data>
 </root>

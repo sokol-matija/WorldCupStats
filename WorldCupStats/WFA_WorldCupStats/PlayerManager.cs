@@ -1,4 +1,4 @@
-﻿using DataLayer;
+using DataLayer;
 using DataLayer.Models;
 
 namespace WFA_WorldCupStats
@@ -14,7 +14,7 @@ namespace WFA_WorldCupStats
 		public List<PlayerControl> SelectedPlayers { get; private set; }
 		private string CurrentTeamFifaCode { get; set; }
 
-		public PlayerManager(IDataProvider dataProvider , SettingsManager settingsManager, LogForm logForm)
+		public PlayerManager(IDataProvider dataProvider, SettingsManager settingsManager, LogForm logForm)
 		{
 			_logForm = logForm;
 			_settingsManager = settingsManager;
@@ -45,25 +45,25 @@ namespace WFA_WorldCupStats
 		}
 
 		public async Task ToggleFavoritePlayerAsync(PlayerControl playerControl)
-{
-    if (playerControl.IsFavorite)
-    {
-        if (FavoritePlayers.Count >= 3)
-        {
-            MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            playerControl.IsFavorite = false;
-            return;
-        }
-        FavoritePlayers.Add(playerControl);
-    }
-    else
-    {
-        FavoritePlayers.Remove(playerControl);
-    }
+		{
+			if (playerControl.IsFavorite)
+			{
+				if (FavoritePlayers.Count >= 3)
+				{
+					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					playerControl.IsFavorite = false;
+					return;
+				}
+				FavoritePlayers.Add(playerControl);
+			}
+			else
+			{
+				FavoritePlayers.Remove(playerControl);
+			}
 
-    await SaveFavoritePlayersAsync();
-    OnFavoritePlayersChanged();
-}
+			await SaveFavoritePlayersAsync();
+			OnFavoritePlayersChanged();
+		}
 
 		public event EventHandler FavoritePlayersChanged;
 

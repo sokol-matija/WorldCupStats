@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -156,11 +156,17 @@
   <data name="FavoritePlayersLabel" xml:space="preserve">
     <value>Favorite Players</value>
   </data>
+  <data name="FavoritePlayersLimitReached" xml:space="preserve">
+    <value>You can only have up to 3 favorite players</value>
+  </data>
   <data name="FileMenu" xml:space="preserve">
     <value>File</value>
   </data>
   <data name="LanguageLabel" xml:space="preserve">
     <value>Language</value>
+  </data>
+  <data name="LimitReached" xml:space="preserve">
+    <value>Limit Reached</value>
   </data>
   <data name="LoadPlayerDetailsButton" xml:space="preserve">
     <value>Load Player Details</value>
