@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using DataLayer.Models;
+using WFA_WorldCupStats;
 
 namespace WFA_WorldCupStats
 {
@@ -8,17 +9,21 @@ namespace WFA_WorldCupStats
 		private readonly LogForm _logForm;
 		private readonly IDataProvider _dataProvider;
 		private readonly SettingsManager _settingsManager;
+		private readonly FavoritePlayerManager _favoritePlayerManager;
 
 		public List<Player> AllPlayers { get; private set; }
 		public HashSet<PlayerControl> FavoritePlayers { get; private set; }
 		public List<PlayerControl> SelectedPlayers { get; private set; }
 		private string CurrentTeamFifaCode { get; set; }
 
+		public event EventHandler FavoritePlayersChanged;
+
 		public PlayerManager(IDataProvider dataProvider, SettingsManager settingsManager, LogForm logForm)
 		{
 			_logForm = logForm;
 			_settingsManager = settingsManager;
 			_dataProvider = dataProvider;
+			_favoritePlayerManager = new FavoritePlayerManager(_dataProvider, _settingsManager, _logForm);
 			AllPlayers = new List<Player>();
 			FavoritePlayers = new HashSet<PlayerControl>(new PlayerControlComparer());
 			SelectedPlayers = new List<PlayerControl>();
@@ -32,7 +37,7 @@ namespace WFA_WorldCupStats
 
 		public async Task LoadFavoritePlayersAsync()
 		{
-			var favoritePlayerNames = await _settingsManager.LoadFavoritePlayersAsync();
+			var favoritePlayerNames = await _favoritePlayerManager.LoadFavoritePlayersAsync();
 
 			FavoritePlayers = new HashSet<PlayerControl>(
 				AllPlayers
@@ -48,9 +53,9 @@ namespace WFA_WorldCupStats
 		{
 			if (playerControl.IsFavorite)
 			{
-				if (FavoritePlayers.Count >= 4)
+				if (FavoritePlayers.Count >= 3)
 				{
-					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					MessageBox.Show(Strings.FavoritePlayersLimitReached, Strings.LimitReached, MessageBoxButtons.OK, MessageBoxIcon.Information);
 					playerControl.IsFavorite = false;
 					return;
 				}
@@ -64,8 +69,6 @@ namespace WFA_WorldCupStats
 			await SaveFavoritePlayersAsync();
 			OnFavoritePlayersChanged();
 		}
-
-		public event EventHandler FavoritePlayersChanged;
 
 		protected virtual void OnFavoritePlayersChanged()
 		{
@@ -98,7 +101,7 @@ namespace WFA_WorldCupStats
 				}
 				else
 				{
-					MessageBox.Show("You can only have up to 3 favorite players.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					MessageBox.Show(Strings.FavoritePlayersLimitReached, Strings.LimitReached, MessageBoxButtons.OK, MessageBoxIcon.Information);
 					break;
 				}
 			}
@@ -110,7 +113,7 @@ namespace WFA_WorldCupStats
 		private async Task SaveFavoritePlayersAsync()
 		{
 			var favoritePlayerNames = FavoritePlayers.Select(pc => pc.Player.Name).Distinct().ToList();
-			await _settingsManager.SaveFavoritePlayersAsync(favoritePlayerNames);
+			await _favoritePlayerManager.SaveFavoritePlayersAsync(favoritePlayerNames);
 		}
 
 		public void ResetPlayers()
@@ -119,6 +122,19 @@ namespace WFA_WorldCupStats
 			FavoritePlayers.Clear();
 			SelectedPlayers.Clear();
 			OnFavoritePlayersChanged();
+		}
+	}
+
+	public class PlayerControlComparer : IEqualityComparer<PlayerControl>
+	{
+		public bool Equals(PlayerControl x, PlayerControl y)
+		{
+			return x.Player.Name == y.Player.Name;
+		}
+
+		public int GetHashCode(PlayerControl obj)
+		{
+			return obj.Player.Name.GetHashCode();
 		}
 	}
 }

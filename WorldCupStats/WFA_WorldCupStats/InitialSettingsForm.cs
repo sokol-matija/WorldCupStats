@@ -7,29 +7,67 @@ namespace WFA_WorldCupStats
 {
 	public partial class InitialSettingsForm : Form
 	{
-		private readonly LogForm _logForm;
 		private readonly SettingsManager _settingsManager;
+		private readonly SettingsUIManager _settingsUIManager;
+
 		public InitialSettingsForm(SettingsManager settingsManager)
 		{
 			InitializeComponent();
 			_settingsManager = settingsManager;
+			_settingsUIManager = new SettingsUIManager(this, _settingsManager);
 			InitializeComboBoxes();
 			ApplyLocalization();
 		}
 
-
 		private void InitializeComboBoxes()
 		{
-			cmbChampionship.Items.Clear();
-			cmbChampionship.Items.Add(new ComboBoxItem(SettingsManager.MenChampionship, () => Strings.MensChampionship));
-			cmbChampionship.Items.Add(new ComboBoxItem(SettingsManager.WomenChampionship, () => Strings.WomensChampionship));
-
-			cmbLanguage.Items.Clear();
-			cmbLanguage.Items.Add(new ComboBoxItem(SettingsManager.EnglishLanguage, () => Strings.EnglishLanguage));
-			cmbLanguage.Items.Add(new ComboBoxItem(SettingsManager.CroatianLanguage, () => Strings.CroatianLanguage));
+			_settingsUIManager.InitializeComboBoxes(cmbChampionship, cmbLanguage);
 		}
 
 		public void SetCurrentSettings()
+		{
+			_settingsUIManager.SetCurrentSettings(cmbChampionship, cmbLanguage);
+		}
+
+		private async void btnSave_Click(object sender, EventArgs e)
+		{
+			await _settingsUIManager.SaveSettings(cmbChampionship, cmbLanguage);
+		}
+
+		private void ApplyLocalization()
+		{
+			_settingsUIManager.ApplyLocalization(this, lblChampionship, lblLanguage, btnSave);
+		}
+
+		public void UpdateComboBoxDisplayText(ComboBox comboBox)
+		{
+			_settingsUIManager.UpdateComboBoxDisplayText(comboBox);
+		}
+	}
+
+	public class SettingsUIManager
+	{
+		private readonly InitialSettingsForm _form;
+		private readonly SettingsManager _settingsManager;
+
+		public SettingsUIManager(InitialSettingsForm form, SettingsManager settingsManager)
+		{
+			_form = form;
+			_settingsManager = settingsManager;
+		}
+
+		public void InitializeComboBoxes(ComboBox cmbChampionship, ComboBox cmbLanguage)
+		{
+			cmbChampionship.Items.Clear();
+			cmbChampionship.Items.Add(new ComboBoxItem(SettingsConstants.MenChampionship, () => Strings.MensChampionship));
+			cmbChampionship.Items.Add(new ComboBoxItem(SettingsConstants.WomenChampionship, () => Strings.WomensChampionship));
+
+			cmbLanguage.Items.Clear();
+			cmbLanguage.Items.Add(new ComboBoxItem(SettingsConstants.EnglishLanguage, () => Strings.EnglishLanguage));
+			cmbLanguage.Items.Add(new ComboBoxItem(SettingsConstants.CroatianLanguage, () => Strings.CroatianLanguage));
+		}
+
+		public void SetCurrentSettings(ComboBox cmbChampionship, ComboBox cmbLanguage)
 		{
 			cmbChampionship.SelectedItem = cmbChampionship.Items.Cast<ComboBoxItem>()
 				.FirstOrDefault(item => item.Value == _settingsManager.SelectedChampionship);
@@ -37,7 +75,7 @@ namespace WFA_WorldCupStats
 				.FirstOrDefault(item => item.Value == _settingsManager.SelectedLanguage);
 		}
 
-		private async void btnSave_Click(object sender, EventArgs e)
+		public async Task SaveSettings(ComboBox cmbChampionship, ComboBox cmbLanguage)
 		{
 			if (cmbChampionship.SelectedItem == null || cmbLanguage.SelectedItem == null)
 			{
@@ -53,8 +91,8 @@ namespace WFA_WorldCupStats
 				await _settingsManager.SaveSettingsAsync(championship, language);
 				ChangeLanguage(language);
 
-				DialogResult = DialogResult.OK;
-				Close();
+				_form.DialogResult = DialogResult.OK;
+				_form.Close();
 			}
 			catch (Exception ex)
 			{
@@ -62,18 +100,18 @@ namespace WFA_WorldCupStats
 			}
 		}
 
-		private void ApplyLocalization()
+		public void ApplyLocalization(Form form, Label lblChampionship, Label lblLanguage, Button btnSave)
 		{
-			this.Text = Strings.SettingsFormTitle;
+			form.Text = Strings.SettingsFormTitle;
 			lblChampionship.Text = Strings.ChampionshipLabel;
 			lblLanguage.Text = Strings.LanguageLabel;
 			btnSave.Text = Strings.SaveButton;
 
-			UpdateComboBoxDisplayText(cmbChampionship);
-			UpdateComboBoxDisplayText(cmbLanguage);
+			UpdateComboBoxDisplayText((ComboBox)form.Controls["cmbChampionship"]);
+			UpdateComboBoxDisplayText((ComboBox)form.Controls["cmbLanguage"]);
 		}
 
-		private void UpdateComboBoxDisplayText(ComboBox comboBox)
+		public void UpdateComboBoxDisplayText(ComboBox comboBox)
 		{
 			foreach (ComboBoxItem item in comboBox.Items)
 			{
@@ -84,12 +122,12 @@ namespace WFA_WorldCupStats
 
 		private void ChangeLanguage(string language)
 		{
-			CultureInfo culture = language == SettingsManager.CroatianLanguage
+			CultureInfo culture = language == SettingsConstants.CroatianLanguage
 				? new CultureInfo("hr-HR")
 				: new CultureInfo("en-US");
 
 			Thread.CurrentThread.CurrentUICulture = culture;
-			ApplyLocalization();
+			ApplyLocalization(_form, _form.Controls["lblChampionship"] as Label, _form.Controls["lblLanguage"] as Label, _form.Controls["btnSave"] as Button);
 		}
 	}
 

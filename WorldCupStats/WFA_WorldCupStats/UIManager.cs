@@ -2,6 +2,7 @@
 using System.Drawing.Printing;
 using System.Resources;
 using System.Text;
+using WFA_WorldCupStats;
 
 namespace WFA_WorldCupStats
 {
@@ -9,75 +10,28 @@ namespace WFA_WorldCupStats
 	{
 		private readonly Form1 _form;
 		private readonly LogForm _logForm;
+		private readonly LocalizationManager _localizationManager;
+		private readonly StatisticsManager _statisticsManager;
+		private readonly PrintManager _printManager;
 
 		public UIManager(Form1 form, LogForm logForm)
 		{
 			_form = form;
 			_logForm = logForm;
+			_localizationManager = new LocalizationManager();
+			_statisticsManager = new StatisticsManager();
+			_printManager = new PrintManager();
 		}
 
 		public void ChangeLanguage(string language)
 		{
-			if (language == "hr" || language == "Croatian" || language == "Hrvatski")
-			{
-				Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("hr-HR");
-			}
-			else
-			{
-				Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-			}
+			_localizationManager.ChangeLanguage(language);
 		}
 
 		public void ApplyLocalization()
 		{
-			_form.Text = Strings.MainFormTitle;
-
-			LocalizeMenuItems();
-
-			LocalizeLabels();
-
-			LocalizeButtons();
-
-			LocalizePlayerControls(_form.pnlAllPlayers);
-			LocalizePlayerControls(_form.pnlFavoritePlayers);
-
-			_form._logForm.Log("UI localized successfully.");
-		}
-
-		private void LocalizeMenuItems()
-		{
-			_form.mnuSettings.Text = Strings.SettingsMenuItem;
-			_form.mnuChosePrintType.Text = Strings.ChosePrintTypeMenuItem;
-			_form.mnuPrintPreview.Text = Strings.PrintPreviewMenuItem;
-			_form.mnuPrint.Text = Strings.PrintMenuItem;
-			_form.mnuPrintStatistics.Text = Strings.PrintStatisticsMenuItem;
-		}
-
-		private void LocalizeLabels()
-		{
-			_form.lblTopScorers.Text = Strings.TopScorersLabel;
-			_form.lblYellowCards.Text = Strings.YellowCardsLabel;
-			_form.lblAllPlayers.Text = Strings.AllPlayersLabel;
-			_form.lblFavoritePlayers.Text = Strings.FavoritePlayersLabel;
-			_form.lblMatches.Text = Strings.MatchesLabel;
-			_form.lblChooseTeam.Text = Strings.ChooseTeamLabel;
-		}
-
-		private void LocalizeButtons()
-		{
-			_form.btnMoveToFavorites.Text = Strings.MoveToFavorites;
-			// Add other buttons here as needed
-		}
-
-		private void LocalizePlayerControls(Panel panel)
-		{
-			foreach (Control control in panel.Controls)
-			{
-				if (control is PlayerControl playerControl)
-				{
-					playerControl.ApplyLocalization();
-				}
-			}
+			_localizationManager.ApplyLocalization(_form);
+			_logForm.Log("UI localized successfully.");
 		}
 
 		public void ShowLoadingIndicator(bool isLoading)
@@ -86,6 +40,10 @@ namespace WFA_WorldCupStats
 			{
 				_form.Cursor = isLoading ? Cursors.WaitCursor : Cursors.Default;
 				// Disable/enable controls as needed
+				_form.cmbTeams.Enabled = !isLoading;
+				_form.btnMoveToFavorites.Enabled = !isLoading;
+				_form.mnuSettings.Enabled = !isLoading;
+				_form.mnuPrint.Enabled = !isLoading;
 			});
 		}
 
@@ -93,6 +51,7 @@ namespace WFA_WorldCupStats
 		{
 			_form.Invoke((MethodInvoker)delegate
 			{
+				_form.cmbTeams.DataSource = null;
 				_form.cmbTeams.DataSource = teams;
 				_form.cmbTeams.DisplayMember = "DisplayName";
 				_form.cmbTeams.ValueMember = "FifaCode";
@@ -122,14 +81,7 @@ namespace WFA_WorldCupStats
 
 		public void UpdateStatisticsList(ListBox listBox, List<PlayerStats> stats)
 		{
-			_form.Invoke((MethodInvoker)delegate
-			{
-				listBox.Items.Clear();
-				foreach (var stat in stats)
-				{
-					listBox.Items.Add($"{stat.Name}: {stat.Count}");
-				}
-			});
+			_statisticsManager.UpdateStatisticsList(_form, listBox, stats);
 		}
 
 		public void UpdatePlayerPanels(List<Player> allPlayers, HashSet<PlayerControl> favoritePlayers)
@@ -191,39 +143,27 @@ namespace WFA_WorldCupStats
 
 		public string GenerateStatisticsReport(ListBox topScorers, ListBox yellowCards, ListBox matches)
 		{
-			StringBuilder report = new StringBuilder();
-			report.AppendLine("World Cup Statistics Report");
-			report.AppendLine("===========================");
-			report.AppendLine();
-
-			AppendListBoxItems(report, "Top Scorers:", topScorers);
-			AppendListBoxItems(report, "Most Yellow Cards:", yellowCards);
-			AppendListBoxItems(report, "Matches:", matches);
-
-			return report.ToString();
-		}
-
-		private void AppendListBoxItems(StringBuilder report, string title, ListBox listBox)
-		{
-			report.AppendLine(title);
-			foreach (var item in listBox.Items)
-			{
-				report.AppendLine(item.ToString());
-			}
-			report.AppendLine();
+			return _statisticsManager.GenerateStatisticsReport(topScorers, yellowCards, matches);
 		}
 
 		public void ShowPrintPreview(string report)
 		{
-			PrintDocument pd = new PrintDocument();
-			pd.PrintPage += (s, ev) =>
-			{
-				ev.Graphics.DrawString(report, new Font("Arial", 12), Brushes.Black, ev.MarginBounds);
-			};
+			_printManager.ShowPrintPreview(report);
+		}
 
-			PrintPreviewDialog ppd = new PrintPreviewDialog();
-			ppd.Document = pd;
-			ppd.ShowDialog();
+		public void ShowErrorMessage(string message, string title)
+		{
+			MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+
+		public void ShowInfoMessage(string message, string title)
+		{
+			MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+
+		public DialogResult ShowConfirmationDialog(string message, string title)
+		{
+			return MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 		}
 	}
 }
