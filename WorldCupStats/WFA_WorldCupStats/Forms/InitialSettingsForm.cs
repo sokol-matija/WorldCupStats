@@ -2,10 +2,11 @@
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Globalization;
+using WFA_WorldCupStats.Managers;
 
 namespace WFA_WorldCupStats
 {
-	public partial class InitialSettingsForm : Form
+    public partial class InitialSettingsForm : Form
 	{
 		private readonly SettingsManager _settingsManager;
 		private readonly SettingsUIManager _settingsUIManager;

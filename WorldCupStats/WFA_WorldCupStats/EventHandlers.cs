@@ -2,17 +2,18 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WFA_WorldCupStats.Managers;
 
 namespace WFA_WorldCupStats
 {
-	public class EventHandlers
+    public class EventHandlers
 	{
-		private readonly Form1 _form;
+		private readonly MainForm _form;
 		private readonly SettingsManager _settingsManager;
 		private readonly PlayerManager _playerManager;
 		private readonly UIManager _uiManager;
 
-		public EventHandlers(Form1 form, SettingsManager settingsManager, PlayerManager playerManager, UIManager uiManager)
+		public EventHandlers(MainForm form, SettingsManager settingsManager, PlayerManager playerManager, UIManager uiManager)
 		{
 			_form = form;
 			_settingsManager = settingsManager;

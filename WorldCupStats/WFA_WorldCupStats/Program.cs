@@ -12,7 +12,7 @@ namespace WFA_WorldCupStats
 			// see https://aka.ms/applicationconfiguration.
 			ApplicationConfiguration.Initialize();
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-			Application.Run(new Form1());
+			Application.Run(new MainForm());
 		}
 	}
 }

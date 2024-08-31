@@ -1,4 +1,9 @@
-﻿using DataLayer.Models;
+﻿using DataLayer;
+using DataLayer.Models;
+using System;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
 
 namespace WFA_WorldCupStats
 {
@@ -6,8 +11,8 @@ namespace WFA_WorldCupStats
 	{
 		private readonly string _starImagePath = Path.Combine(Application.StartupPath, "Resources", "star.png");
 		private readonly string _defaultPlayerImagePath = Path.Combine(Application.StartupPath, "Resources", "profile.png");
-		private string _customPlayerImagePath;
 		private readonly LogForm _logForm;
+		private readonly IDataProvider _dataProvider;
 
 		public Player Player { get; private set; }
 		private bool _isFavorite;
@@ -46,15 +51,17 @@ namespace WFA_WorldCupStats
 			}
 		}
 
-		public PlayerControl(Player player, LogForm logForm)
+		public PlayerControl(Player player, LogForm logForm, IDataProvider dataProvider)
 		{
 			_logForm = logForm;
 			Player = player;
+			_dataProvider = dataProvider;
 			InitializeComponent();
 			_defaultBackColor = BackColor;
-			LoadImages();
 			CreateContextMenu();
+			LoadImages();
 			this.MouseDown += PlayerControl_MouseDown;
+			this.DoubleClick += PlayerControl_DoubleClick;
 			ApplyLocalization();
 		}
 
@@ -62,8 +69,9 @@ namespace WFA_WorldCupStats
 		{
 			_contextMenu = new ContextMenuStrip();
 			this.ContextMenuStrip = _contextMenu;
+			UpdateContextMenu();
 		}
-		
+
 		private void UpdateContextMenu()
 		{
 			_contextMenu.Items.Clear();
@@ -82,6 +90,16 @@ namespace WFA_WorldCupStats
 
 		private void SetImageItem_Click(object sender, EventArgs e)
 		{
+			SetPlayerImage();
+		}
+
+		private void PlayerControl_DoubleClick(object sender, EventArgs e)
+		{
+			SetPlayerImage();
+		}
+
+		private async void SetPlayerImage()
+		{
 			using (OpenFileDialog openFileDialog = new OpenFileDialog())
 			{
 				openFileDialog.Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
@@ -89,8 +107,18 @@ namespace WFA_WorldCupStats
 
 				if (openFileDialog.ShowDialog() == DialogResult.OK)
 				{
-					_customPlayerImagePath = openFileDialog.FileName;
-					LoadPlayerImage();
+					try
+					{
+						byte[] imageData = File.ReadAllBytes(openFileDialog.FileName);
+						await _dataProvider.SavePlayerImageAsync(Player.Name, imageData);
+						LoadPlayerImage();
+						_logForm.Log($"Image set for player: {Player.Name}");
+					}
+					catch (Exception ex)
+					{
+						MessageBox.Show($"{Strings.Error}: {ex.Message}", Strings.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						_logForm.Log($"Error setting image for player {Player.Name}: {ex.Message}");
+					}
 				}
 			}
 		}
@@ -100,11 +128,12 @@ namespace WFA_WorldCupStats
 			try
 			{
 				LoadImageToControl(picFavorite, _starImagePath);
-				LoadImageToControl(picPlayer, _customPlayerImagePath ?? _defaultPlayerImagePath);
+				LoadPlayerImage();
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show($"{Strings.Error}: {ex.Message}", Strings.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				_logForm.Log($"Error loading images: {ex.Message}");
 			}
 		}
 
@@ -112,14 +141,37 @@ namespace WFA_WorldCupStats
 		{
 			if (File.Exists(imagePath))
 			{
-				pictureBox.Image = Image.FromFile(imagePath);
+				using (var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
+				{
+					pictureBox.Image = Image.FromStream(stream);
+				}
 				pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
 			}
 		}
 
-		private void LoadPlayerImage()
+		private async void LoadPlayerImage()
 		{
-			LoadImageToControl(picPlayer, _customPlayerImagePath ?? _defaultPlayerImagePath);
+			try
+			{
+				byte[] imageData = await _dataProvider.GetPlayerImageAsync(Player.Name);
+				if (imageData != null && imageData.Length > 0)
+				{
+					using (var ms = new MemoryStream(imageData))
+					{
+						picPlayer.Image = Image.FromStream(ms);
+					}
+				}
+				else
+				{
+					LoadImageToControl(picPlayer, _defaultPlayerImagePath);
+				}
+				picPlayer.SizeMode = PictureBoxSizeMode.Zoom;
+			}
+			catch (Exception ex)
+			{
+				_logForm.Log($"Error loading player image for {Player.Name}: {ex.Message}");
+				LoadImageToControl(picPlayer, _defaultPlayerImagePath);
+			}
 		}
 
 		public void ApplyLocalization()
@@ -161,5 +213,6 @@ namespace WFA_WorldCupStats
 		{
 			SelectionToggled?.Invoke(this, EventArgs.Empty);
 		}
+
 	}
 }

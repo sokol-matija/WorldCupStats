@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using DataLayer.Models;
 using Newtonsoft.Json;
@@ -16,6 +17,9 @@ namespace DataLayer
 		private const string FavoritesFileName = "favorites.json";
 		private const string MenFavoritesFileName = "men_favorites.json";
 		private const string WomenFavoritesFileName = "women_favorites.json";
+		private const string PlayerImagesFolder = "player_images";
+		private const string AssetsFolder = "Assets";
+		private const string ImagesFolder = "Images";
 
 		public ApiDataProvider()
 		{
@@ -245,6 +249,37 @@ namespace DataLayer
 				}
 			}
 			return new List<string>();
+		}
+
+
+		private static string GetDataLayerPath()
+		{
+			string currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			while (currentPath != null && !Directory.Exists(Path.Combine(currentPath, "DataLayer")))
+			{
+				currentPath = Directory.GetParent(currentPath)?.FullName;
+			}
+			return Path.Combine(currentPath, "DataLayer");
+		}
+
+		private static readonly string DataLayerPath = GetDataLayerPath();
+
+		public async Task SavePlayerImageAsync(string playerName, byte[] imageData)
+		{
+			string folderPath = Path.Combine(DataLayerPath, AssetsFolder, ImagesFolder);
+			Directory.CreateDirectory(folderPath);
+			string filePath = Path.Combine(folderPath, $"{playerName}.png");
+			await File.WriteAllBytesAsync(filePath, imageData);
+		}
+
+		public async Task<byte[]> GetPlayerImageAsync(string playerName)
+		{
+			string filePath = Path.Combine(DataLayerPath, AssetsFolder, ImagesFolder, $"{playerName}.png");
+			if (File.Exists(filePath))
+			{
+				return await File.ReadAllBytesAsync(filePath);
+			}
+			return null;
 		}
 	}
 }

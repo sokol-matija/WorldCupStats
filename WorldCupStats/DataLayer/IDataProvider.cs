@@ -37,5 +37,7 @@ namespace DataLayer
 		Task<List<PlayerStats>> GetTopScorersAsync(string gender, int count);
 		Task<List<PlayerStats>> GetYellowCardsAsync(string gender, int count);
 		Task<List<Match>> GetMatchesByAttendanceAsync(string gender, int count);
+		Task SavePlayerImageAsync(string playerName, byte[] imageData);
+		Task<byte[]> GetPlayerImageAsync(string playerName);
 	}
 }

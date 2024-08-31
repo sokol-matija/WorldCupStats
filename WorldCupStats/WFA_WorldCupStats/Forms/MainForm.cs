@@ -1,10 +1,11 @@
 using DataLayer;
 using DataLayer.Models;
 using System;
+using WFA_WorldCupStats.Managers;
 
 namespace WFA_WorldCupStats
 {
-	public partial class Form1 : Form
+    public partial class MainForm : Form
 	{
 		private readonly IDataProvider _dataProvider;
 		private readonly SettingsManager _settingsManager;
@@ -14,14 +15,14 @@ namespace WFA_WorldCupStats
 		private readonly DragDropManager _dragDropManager;
 		private readonly EventHandlers _eventHandlers;
 
-		public Form1()
+		public MainForm()
 		{
 			InitializeComponent();
 			_dataProvider = DataProviderFactory.CreateDataProvider();
 			_logForm = new LogForm();
 			_settingsManager = new SettingsManager(_dataProvider, _logForm);
 			_playerManager = new PlayerManager(_dataProvider, _settingsManager, _logForm);
-			_uiManager = new UIManager(this, _logForm);
+			_uiManager = new UIManager(this, _logForm, _dataProvider);
 			_dragDropManager = new DragDropManager(this, _playerManager, _uiManager, _logForm);
 			_eventHandlers = new EventHandlers(this, _settingsManager, _playerManager, _uiManager);
 
