@@ -31,16 +31,12 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			cmbTeams = new ComboBox();
 			lblChooseTeam = new Label();
-			lstMatches = new ListBox();
-			lstYellowCards = new ListBox();
-			lstTopScorers = new ListBox();
 			lblMatches = new Label();
 			lblYellowCards = new Label();
 			lblTopScorers = new Label();
 			pnlAllPlayers = new Panel();
 			pnlFavoritePlayers = new Panel();
 			lblAllPlayers = new Label();
-			lblFavoritePlayers = new Label();
 			menuStrip = new MenuStrip();
 			mnuSettings = new ToolStripMenuItem();
 			mnuPrint = new ToolStripMenuItem();
@@ -53,6 +49,10 @@
 			printPreviewDialog = new PrintPreviewDialog();
 			statusStrip = new StatusStrip();
 			btnMoveToFavorites = new Button();
+			pnlTopScorers = new Panel();
+			pnlYellowCards = new Panel();
+			pnlMatches = new Panel();
+			lblFavoritePlayers = new Label();
 			menuStrip.SuspendLayout();
 			SuspendLayout();
 			// 
@@ -74,57 +74,33 @@
 			lblChooseTeam.TabIndex = 1;
 			lblChooseTeam.Text = "Choose Team:";
 			// 
-			// lstMatches
-			// 
-			lstMatches.FormattingEnabled = true;
-			lstMatches.ItemHeight = 30;
-			lstMatches.Location = new Point(1509, 78);
-			lstMatches.Name = "lstMatches";
-			lstMatches.Size = new Size(283, 424);
-			lstMatches.TabIndex = 2;
-			// 
-			// lstYellowCards
-			// 
-			lstYellowCards.FormattingEnabled = true;
-			lstYellowCards.ItemHeight = 30;
-			lstYellowCards.Location = new Point(1156, 78);
-			lstYellowCards.Name = "lstYellowCards";
-			lstYellowCards.Size = new Size(278, 424);
-			lstYellowCards.TabIndex = 3;
-			// 
-			// lstTopScorers
-			// 
-			lstTopScorers.FormattingEnabled = true;
-			lstTopScorers.ItemHeight = 30;
-			lstTopScorers.Location = new Point(796, 78);
-			lstTopScorers.Name = "lstTopScorers";
-			lstTopScorers.Size = new Size(278, 424);
-			lstTopScorers.TabIndex = 4;
-			// 
 			// lblMatches
 			// 
 			lblMatches.AutoSize = true;
-			lblMatches.Location = new Point(1509, 40);
+			lblMatches.Font = new Font("Segoe UI", 14.1428576F, FontStyle.Regular, GraphicsUnit.Point, 238);
+			lblMatches.Location = new Point(999, 142);
 			lblMatches.Name = "lblMatches";
-			lblMatches.Size = new Size(97, 30);
+			lblMatches.Size = new Size(150, 45);
 			lblMatches.TabIndex = 5;
 			lblMatches.Text = "Matches:";
 			// 
 			// lblYellowCards
 			// 
 			lblYellowCards.AutoSize = true;
-			lblYellowCards.Location = new Point(1156, 40);
+			lblYellowCards.Font = new Font("Segoe UI", 14.1428576F, FontStyle.Regular, GraphicsUnit.Point, 238);
+			lblYellowCards.Location = new Point(509, 560);
 			lblYellowCards.Name = "lblYellowCards";
-			lblYellowCards.Size = new Size(134, 30);
+			lblYellowCards.Size = new Size(208, 45);
 			lblYellowCards.TabIndex = 6;
 			lblYellowCards.Text = "Yellow Cards:";
 			// 
 			// lblTopScorers
 			// 
 			lblTopScorers.AutoSize = true;
-			lblTopScorers.Location = new Point(796, 40);
+			lblTopScorers.Font = new Font("Segoe UI", 14.1428576F, FontStyle.Regular, GraphicsUnit.Point, 238);
+			lblTopScorers.Location = new Point(509, 136);
 			lblTopScorers.Name = "lblTopScorers";
-			lblTopScorers.Size = new Size(119, 30);
+			lblTopScorers.Size = new Size(186, 45);
 			lblTopScorers.TabIndex = 7;
 			lblTopScorers.Text = "Top Scorers";
 			// 
@@ -153,22 +129,13 @@
 			// lblAllPlayers
 			// 
 			lblAllPlayers.AutoSize = true;
-			lblAllPlayers.Location = new Point(38, 156);
+			lblAllPlayers.Font = new Font("Segoe UI", 14.1428576F, FontStyle.Regular, GraphicsUnit.Point, 238);
+			lblAllPlayers.Location = new Point(38, 136);
 			lblAllPlayers.Margin = new Padding(4, 0, 4, 0);
 			lblAllPlayers.Name = "lblAllPlayers";
-			lblAllPlayers.Size = new Size(108, 30);
+			lblAllPlayers.Size = new Size(167, 45);
 			lblAllPlayers.TabIndex = 0;
 			lblAllPlayers.Text = "All Players";
-			// 
-			// lblFavoritePlayers
-			// 
-			lblFavoritePlayers.AutoSize = true;
-			lblFavoritePlayers.Location = new Point(38, 573);
-			lblFavoritePlayers.Margin = new Padding(4, 0, 4, 0);
-			lblFavoritePlayers.Name = "lblFavoritePlayers";
-			lblFavoritePlayers.Size = new Size(156, 30);
-			lblFavoritePlayers.TabIndex = 11;
-			lblFavoritePlayers.Text = "Favorite Players";
 			// 
 			// menuStrip
 			// 
@@ -197,25 +164,25 @@
 			// mnuChosePrintType
 			// 
 			mnuChosePrintType.Name = "mnuChosePrintType";
-			mnuChosePrintType.Size = new Size(315, 40);
+			mnuChosePrintType.Size = new Size(286, 40);
 			mnuChosePrintType.Text = "Chose Print Type";
 			// 
 			// mnuPrintPreview
 			// 
 			mnuPrintPreview.Name = "mnuPrintPreview";
-			mnuPrintPreview.Size = new Size(315, 40);
+			mnuPrintPreview.Size = new Size(286, 40);
 			mnuPrintPreview.Text = "Print Preview";
 			// 
 			// mnuPrinting
 			// 
 			mnuPrinting.Name = "mnuPrinting";
-			mnuPrinting.Size = new Size(315, 40);
+			mnuPrinting.Size = new Size(286, 40);
 			mnuPrinting.Text = "Print";
 			// 
 			// mnuPrintStatistics
 			// 
 			mnuPrintStatistics.Name = "mnuPrintStatistics";
-			mnuPrintStatistics.Size = new Size(315, 40);
+			mnuPrintStatistics.Size = new Size(286, 40);
 			mnuPrintStatistics.Text = "Print Statistics";
 			mnuPrintStatistics.Click += printStatistics_Click;
 			// 
@@ -254,11 +221,49 @@
 			btnMoveToFavorites.Visible = false;
 			btnMoveToFavorites.Click += btnMoveToFavorites_Click;
 			// 
-			// Form1
+			// pnlTopScorers
+			// 
+			pnlTopScorers.AutoScroll = true;
+			pnlTopScorers.Location = new Point(509, 190);
+			pnlTopScorers.Name = "pnlTopScorers";
+			pnlTopScorers.Size = new Size(414, 360);
+			pnlTopScorers.TabIndex = 15;
+			// 
+			// pnlYellowCards
+			// 
+			pnlYellowCards.AutoScroll = true;
+			pnlYellowCards.Location = new Point(509, 608);
+			pnlYellowCards.Name = "pnlYellowCards";
+			pnlYellowCards.Size = new Size(414, 405);
+			pnlYellowCards.TabIndex = 16;
+			// 
+			// pnlMatches
+			// 
+			pnlMatches.AutoScroll = true;
+			pnlMatches.Location = new Point(999, 190);
+			pnlMatches.Name = "pnlMatches";
+			pnlMatches.Size = new Size(649, 823);
+			pnlMatches.TabIndex = 17;
+			// 
+			// lblFavoritePlayers
+			// 
+			lblFavoritePlayers.AutoSize = true;
+			lblFavoritePlayers.Font = new Font("Segoe UI", 14.1428576F, FontStyle.Regular, GraphicsUnit.Point, 238);
+			lblFavoritePlayers.Location = new Point(38, 558);
+			lblFavoritePlayers.Margin = new Padding(4, 0, 4, 0);
+			lblFavoritePlayers.Name = "lblFavoritePlayers";
+			lblFavoritePlayers.Size = new Size(244, 45);
+			lblFavoritePlayers.TabIndex = 11;
+			lblFavoritePlayers.Text = "Favorite Players";
+			// 
+			// MainForm
 			// 
 			AutoScaleDimensions = new SizeF(12F, 30F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(1818, 1038);
+			Controls.Add(pnlMatches);
+			Controls.Add(pnlYellowCards);
+			Controls.Add(pnlTopScorers);
 			Controls.Add(btnMoveToFavorites);
 			Controls.Add(statusStrip);
 			Controls.Add(lblFavoritePlayers);
@@ -268,14 +273,11 @@
 			Controls.Add(lblTopScorers);
 			Controls.Add(lblYellowCards);
 			Controls.Add(lblMatches);
-			Controls.Add(lstTopScorers);
-			Controls.Add(lstYellowCards);
-			Controls.Add(lstMatches);
 			Controls.Add(lblChooseTeam);
 			Controls.Add(cmbTeams);
 			Controls.Add(menuStrip);
 			MainMenuStrip = menuStrip;
-			Name = "Form1";
+			Name = "MainForm";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "World Cup Statistics";
 			menuStrip.ResumeLayout(false);
@@ -288,16 +290,12 @@
 
 		public ComboBox cmbTeams;
 		public Label lblChooseTeam;
-		public ListBox lstMatches;
-		public ListBox lstYellowCards;
-		public ListBox lstTopScorers;
 		public Label lblMatches;
 		public Label lblYellowCards;
 		public Label lblTopScorers;
 		public Panel pnlAllPlayers;
 		public Panel pnlFavoritePlayers;
 		public Label lblAllPlayers;
-		public Label lblFavoritePlayers;
 		public MenuStrip menuStrip;
 		public PrintDialog printDialog;
 		public System.Drawing.Printing.PrintDocument printDocument;
@@ -310,5 +308,9 @@
 		public ToolStripMenuItem mnuPrinting;
 		public ToolStripMenuItem mnuPrintStatistics;
 		public Button btnMoveToFavorites;
+		public Panel pnlTopScorers;
+		public Panel pnlYellowCards;
+		public Panel pnlMatches;
+		public Label lblFavoritePlayers;
 	}
 }

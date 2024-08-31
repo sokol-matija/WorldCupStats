@@ -69,23 +69,7 @@ namespace WFA_WorldCupStats.Managers
             });
         }
 
-        public void UpdateMatchesList(List<Match> matches)
-        {
-            _form.Invoke((MethodInvoker)delegate
-            {
-                _form.lstMatches.Items.Clear();
-                foreach (var match in matches)
-                {
-                    _form.lstMatches.Items.Add($"{match.HomeTeamCountry} vs {match.AwayTeamCountry} - {match.HomeTeam.Goals}:{match.AwayTeam.Goals}");
-                }
-            });
-        }
-
-        public void UpdateStatisticsList(ListBox listBox, List<PlayerStats> stats)
-        {
-            _statisticsManager.UpdateStatisticsList(_form, listBox, stats);
-        }
-
+   
         public void UpdatePlayerPanels(List<Player> allPlayers, HashSet<PlayerControl> favoritePlayers)
         {
             _form.Invoke((MethodInvoker)delegate
@@ -143,12 +127,12 @@ namespace WFA_WorldCupStats.Managers
             });
         }
 
-        public string GenerateStatisticsReport(ListBox topScorers, ListBox yellowCards, ListBox matches)
-        {
-            return _statisticsManager.GenerateStatisticsReport(topScorers, yellowCards, matches);
-        }
+		public string GenerateStatisticsReport()
+		{
+			return _statisticsManager.GenerateStatisticsReport(_form.pnlTopScorers, _form.pnlYellowCards, _form.pnlMatches);
+		}
 
-        public void ShowPrintPreview(string report)
+		public void ShowPrintPreview(string report)
         {
             _printManager.ShowPrintPreview(report);
         }
@@ -167,5 +151,34 @@ namespace WFA_WorldCupStats.Managers
         {
             return MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
-    }
+
+		public void ClearStatisticsPanels()
+		{
+			_form.Invoke((MethodInvoker)delegate
+			{
+				_form.pnlTopScorers.Controls.Clear();
+				_form.pnlYellowCards.Controls.Clear();
+				_form.pnlMatches.Controls.Clear();
+			});
+		}
+
+		public void UpdateRankingList<T>(Panel panel, List<T> items, Func<T, Control> createControl)
+		{
+			_logForm.Log($"Updating {panel.Name} with {items.Count} items");
+			panel.SuspendLayout();
+			panel.Controls.Clear();
+			int yOffset = 0;
+			foreach (var item in items)
+			{
+				var control = createControl(item);
+				control.Location = new Point(0, yOffset);
+				panel.Controls.Add(control);
+				yOffset += control.Height + 5; // 5 piksela razmaka
+				_logForm.Log($"Added control at Y: {yOffset} for item: {item}");
+			}
+			panel.ResumeLayout();
+			panel.PerformLayout();
+			_logForm.Log($"Finished updating {panel.Name}. Total controls added: {panel.Controls.Count}");
+		}
+	}
 }

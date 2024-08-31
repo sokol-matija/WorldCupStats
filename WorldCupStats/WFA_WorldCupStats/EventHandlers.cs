@@ -45,7 +45,7 @@ namespace WFA_WorldCupStats
 
 		public void HandlePrintStatisticsClick(object sender, EventArgs e)
 		{
-			string report = _uiManager.GenerateStatisticsReport(_form.lstTopScorers, _form.lstYellowCards, _form.lstMatches);
+			string report = _uiManager.GenerateStatisticsReport();
 			_uiManager.ShowPrintPreview(report);
 		}
 

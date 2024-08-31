@@ -34,9 +34,9 @@ namespace DataLayer
 		Task SaveFavoritePlayersAsync(List<string> playerNames);
 		Task<List<string>> LoadFavoritePlayersAsync();
 
-		Task<List<PlayerStats>> GetTopScorersAsync(string gender, int count);
-		Task<List<PlayerStats>> GetYellowCardsAsync(string gender, int count);
-		Task<List<Match>> GetMatchesByAttendanceAsync(string gender, int count);
+		Task<List<PlayerStats>> GetTopScorersAsync(string gender, string teamFifaCode);
+		Task<List<PlayerStats>> GetYellowCardsAsync(string gender, string teamFifaCode);
+		Task<List<Match>> GetMatchesByAttendanceAsync(string gender, string teamFifaCode);
 		Task SavePlayerImageAsync(string playerName, byte[] imageData);
 		Task<byte[]> GetPlayerImageAsync(string playerName);
 	}

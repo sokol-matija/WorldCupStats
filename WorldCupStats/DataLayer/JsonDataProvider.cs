@@ -93,62 +93,6 @@ namespace DataLayer
 		public Task SaveFavoritePlayersAsync(List<string> playerNames) => _localStorageProvider.SaveFavoritePlayersAsync(playerNames);
 		public Task<List<string>> LoadFavoritePlayersAsync() => _localStorageProvider.LoadFavoritePlayersAsync();
 
-		public async Task<List<PlayerStats>> GetTopScorersAsync(string gender, int count)
-		{
-			var matches = await GetMatchesAsync(gender);
-			var players = new Dictionary<string, int>();
-
-			foreach (var match in matches)
-			{
-				foreach (var teamEvent in match.HomeTeamEvents.Concat(match.AwayTeamEvents))
-				{
-					if (teamEvent.TypeOfEvent == "goal" || teamEvent.TypeOfEvent == "goal-penalty")
-					{
-						if (!players.ContainsKey(teamEvent.Player))
-							players[teamEvent.Player] = 0;
-						players[teamEvent.Player]++;
-					}
-				}
-			}
-
-			return players.OrderByDescending(p => p.Value)
-						  .Take(count)
-						  .Select(p => new PlayerStats { Name = p.Key, Count = p.Value })
-						  .ToList();
-		}
-
-		public async Task<List<PlayerStats>> GetYellowCardsAsync(string gender, int count)
-		{
-			var matches = await GetMatchesAsync(gender);
-			var players = new Dictionary<string, int>();
-
-			foreach (var match in matches)
-			{
-				foreach (var teamEvent in match.HomeTeamEvents.Concat(match.AwayTeamEvents))
-				{
-					if (teamEvent.TypeOfEvent == "yellow-card")
-					{
-						if (!players.ContainsKey(teamEvent.Player))
-							players[teamEvent.Player] = 0;
-						players[teamEvent.Player]++;
-					}
-				}
-			}
-
-			return players.OrderByDescending(p => p.Value)
-						  .Take(count)
-						  .Select(p => new PlayerStats { Name = p.Key, Count = p.Value })
-						  .ToList();
-		}
-
-		public async Task<List<Match>> GetMatchesByAttendanceAsync(string gender, int count)
-		{
-			var matches = await GetMatchesAsync(gender);
-			return matches.OrderByDescending(m => int.Parse(m.Attendance))
-						  .Take(count)
-						  .ToList();
-		}
-
 		public async Task SaveFavoritePlayersAsync(string fifaCode, List<string> playerNames)
 		{
 			var favoritesFilePath = Path.Combine(AssetsFolderPath, FavoritesFileName);
@@ -266,6 +210,61 @@ namespace DataLayer
 				return await File.ReadAllBytesAsync(filePath);
 			}
 			return null;
+		}
+
+		public async Task<List<PlayerStats>> GetTopScorersAsync(string gender, string teamFifaCode)
+		{
+			var matches = await GetMatchesByCountryAsync(teamFifaCode, gender);
+			var players = new Dictionary<string, int>();
+
+			foreach (var match in matches)
+			{
+				var teamEvents = match.HomeTeam.Code == teamFifaCode ? match.HomeTeamEvents : match.AwayTeamEvents;
+				foreach (var teamEvent in teamEvents)
+				{
+					if (teamEvent.TypeOfEvent == "goal" || teamEvent.TypeOfEvent == "goal-penalty")
+					{
+						if (!players.ContainsKey(teamEvent.Player))
+							players[teamEvent.Player] = 0;
+						players[teamEvent.Player]++;
+					}
+				}
+			}
+
+			return players.OrderByDescending(p => p.Value)
+						  .Select(p => new PlayerStats { Name = p.Key, Count = p.Value })
+						  .ToList();
+		}
+
+		public async Task<List<PlayerStats>> GetYellowCardsAsync(string gender, string teamFifaCode)
+		{
+			var matches = await GetMatchesByCountryAsync(teamFifaCode, gender);
+			var players = new Dictionary<string, int>();
+
+			foreach (var match in matches)
+			{
+				var teamEvents = match.HomeTeam.Code == teamFifaCode ? match.HomeTeamEvents : match.AwayTeamEvents;
+				foreach (var teamEvent in teamEvents)
+				{
+					if (teamEvent.TypeOfEvent == "yellow-card")
+					{
+						if (!players.ContainsKey(teamEvent.Player))
+							players[teamEvent.Player] = 0;
+						players[teamEvent.Player]++;
+					}
+				}
+			}
+
+			return players.OrderByDescending(p => p.Value)
+						  .Select(p => new PlayerStats { Name = p.Key, Count = p.Value })
+						  .ToList();
+		}
+
+		public async Task<List<Match>> GetMatchesByAttendanceAsync(string gender, string teamFifaCode)
+		{
+			var matches = await GetMatchesByCountryAsync(teamFifaCode, gender);
+			return matches.OrderByDescending(m => int.Parse(m.Attendance))
+						  .ToList();
 		}
 	}
 }

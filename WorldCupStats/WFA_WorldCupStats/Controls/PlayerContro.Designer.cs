@@ -105,6 +105,7 @@
 			// 
 			AutoScaleDimensions = new SizeF(12F, 30F);
 			AutoScaleMode = AutoScaleMode.Font;
+			BorderStyle = BorderStyle.FixedSingle;
 			Controls.Add(picPlayer);
 			Controls.Add(picFavorite);
 			Controls.Add(chkCaptain);
@@ -113,7 +114,7 @@
 			Controls.Add(lblName);
 			Margin = new Padding(4);
 			Name = "PlayerControl";
-			Size = new Size(381, 153);
+			Size = new Size(379, 151);
 			MouseDown += PlayerControl_MouseDown;
 			((System.ComponentModel.ISupportInitialize)picFavorite).EndInit();
 			((System.ComponentModel.ISupportInitialize)picPlayer).EndInit();

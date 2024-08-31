@@ -1,6 +1,7 @@
 using DataLayer;
 using DataLayer.Models;
 using System;
+using WFA_WorldCupStats.Controls;
 using WFA_WorldCupStats.Managers;
 
 namespace WFA_WorldCupStats
@@ -86,16 +87,41 @@ namespace WFA_WorldCupStats
 			_uiManager.PopulateTeamsComboBox(teams, _settingsManager.FavoriteTeam);
 
 			var matches = await _dataProvider.GetMatchesAsync(_settingsManager.SelectedChampionship.ToLower());
-			_uiManager.UpdateMatchesList(matches);
+			//_uiManager.UpdateRankingList(matches);
+			//TODO: Implement UpdateRankingList method
 		}
 
 		private async Task LoadAndDisplayStatisticsAsync()
 		{
-			var topScorers = await _dataProvider.GetTopScorersAsync(_settingsManager.SelectedChampionship.ToLower(), 5);
-			var yellowCards = await _dataProvider.GetYellowCardsAsync(_settingsManager.SelectedChampionship.ToLower(), 5);
+			if (string.IsNullOrEmpty(_settingsManager.FavoriteTeam))
+			{
+				// Oèisti panele ako nema odabranog tima
+				_uiManager.ClearStatisticsPanels();
+				_logForm.Log("No favorite team selected. Clearing panels.");
+				return;
+			}
 
-			_uiManager.UpdateStatisticsList(lstTopScorers, topScorers);
-			_uiManager.UpdateStatisticsList(lstYellowCards, yellowCards);
+			_logForm.Log($"Loading statistics for team: {_settingsManager.FavoriteTeam}");
+
+			var topScorers = await _dataProvider.GetTopScorersAsync(_settingsManager.SelectedChampionship.ToLower(), _settingsManager.FavoriteTeam);
+			_logForm.Log($"Top Scorers retrieved: {topScorers.Count}");
+
+			var yellowCards = await _dataProvider.GetYellowCardsAsync(_settingsManager.SelectedChampionship.ToLower(), _settingsManager.FavoriteTeam);
+			_logForm.Log($"Yellow Cards retrieved: {yellowCards.Count}");
+
+			var matches = await _dataProvider.GetMatchesByAttendanceAsync(_settingsManager.SelectedChampionship.ToLower(), _settingsManager.FavoriteTeam);
+			_logForm.Log($"Matches retrieved: {matches.Count}");
+
+			_logForm.Log("Updating Top Scorers panel");
+			_uiManager.UpdateRankingList(pnlTopScorers, topScorers, (stats) => new RankingPlayerControl(stats, _dataProvider));
+
+			_logForm.Log("Updating Yellow Cards panel");
+			_uiManager.UpdateRankingList(pnlYellowCards, yellowCards, (stats) => new RankingPlayerControl(stats, _dataProvider));
+
+			_logForm.Log("Updating Matches panel");
+			_uiManager.UpdateRankingList(pnlMatches, matches, (match) => new MatchControl(match));
+
+			_logForm.Log("Finished updating all panels");
 		}
 
 		private async Task LoadPlayerDetailsAsync(string fifaCode)
@@ -124,7 +150,12 @@ namespace WFA_WorldCupStats
 		}
 
 		// Event handlers
-		private void cmbTeams_SelectedIndexChanged(object sender, EventArgs e) => _eventHandlers.HandleTeamSelectionChanged(sender, e);
+		private async void cmbTeams_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			await _eventHandlers.HandleTeamSelectionChanged(sender, e);
+			await LoadAndDisplayStatisticsAsync();
+
+		}
 		private void btnMoveToFavorites_Click(object sender, EventArgs e) => _eventHandlers.HandleMoveToFavoritesClick(sender, e);
 		private void mnuSettings_Click(object sender, EventArgs e) => _eventHandlers.HandleSettingsClick(sender, e);
 		private void printStatistics_Click(object sender, EventArgs e) => _eventHandlers.HandlePrintStatisticsClick(sender, e);
