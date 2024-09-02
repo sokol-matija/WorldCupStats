@@ -14,14 +14,14 @@ namespace DataLayer
 
 		public async Task SaveSettingsAsync(string key, string value)
 		{
-			var settings = await LoadAllSettingsAsync();
+			var settings = await SharedSettings.LoadSettingsAsync();
 			settings[key] = value;
-			await File.WriteAllTextAsync(SettingsFile, JsonConvert.SerializeObject(settings));
+			await SharedSettings.SaveSettingsAsync(settings);
 		}
 
 		public async Task<string> LoadSettingsAsync(string key)
 		{
-			var settings = await LoadAllSettingsAsync();
+			var settings = await SharedSettings.LoadSettingsAsync();
 			return settings.TryGetValue(key, out var value) ? value : null;
 		}
 

@@ -21,6 +21,7 @@ namespace WFA_WorldCupStats
 			InitializeComponent();
 			_dataProvider = DataProviderFactory.CreateDataProvider();
 			_logForm = new LogForm();
+			_logForm.Log($"Settings file path: {SharedSettings.SettingsFilePath}");
 			_settingsManager = new SettingsManager(_dataProvider, _logForm);
 			_playerManager = new PlayerManager(_dataProvider, _settingsManager, _logForm);
 			_uiManager = new UIManager(this, _logForm, _dataProvider);
@@ -62,7 +63,13 @@ namespace WFA_WorldCupStats
 			{
 				await LoadPlayerDetailsAsync(_settingsManager.FavoriteTeam);
 			}
+			else
+			{
+				_uiManager.ResetTeamSelection();
+			}
 		}
+
+
 
 		private async Task LoadChampionshipDataAsync()
 		{

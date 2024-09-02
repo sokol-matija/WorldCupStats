@@ -208,5 +208,13 @@ namespace WFA_WorldCupStats.Managers
 			panel.PerformLayout();
 			_logForm.Log($"Finished updating {panel.Name}. Total controls added: {panel.Controls.Count}");
 		}
+
+		public void ResetTeamSelection()
+		{
+			_form.Invoke((MethodInvoker)delegate
+			{
+				_form.cmbTeams.SelectedIndex = -1;
+			});
+		}
 	}
 }

@@ -30,24 +30,25 @@ namespace WFA_WorldCupStats.Managers
             SettingsChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public async Task LoadInitialSettingsAsync()
-        {
-            try
-            {
-                SelectedChampionship = await _dataProvider.LoadSettingsAsync("Championship") ?? SettingsConstants.MenChampionship;
-                SelectedLanguage = await _dataProvider.LoadSettingsAsync("Language") ?? SettingsConstants.EnglishLanguage;
-                FavoriteTeam = await _dataProvider.LoadFavoriteTeamAsync();
-            }
-            catch (Exception ex)
-            {
-                _logForm.Log($"Error loading initial settings: {ex.Message}");
-                SelectedChampionship = SettingsConstants.MenChampionship;
-                SelectedLanguage = SettingsConstants.EnglishLanguage;
-                FavoriteTeam = null;
-            }
-        }
+		public async Task LoadInitialSettingsAsync()
+		{
+			try
+			{
+				SelectedChampionship = await _dataProvider.LoadSettingsAsync("Championship") ?? SettingsConstants.MenChampionship;
+				SelectedLanguage = await _dataProvider.LoadSettingsAsync("Language") ?? SettingsConstants.EnglishLanguage;
+				string favoriteTeam = await _dataProvider.LoadFavoriteTeamAsync();
+				FavoriteTeam = string.IsNullOrEmpty(favoriteTeam) ? null : favoriteTeam;
+			}
+			catch (Exception ex)
+			{
+				_logForm.Log($"Error loading initial settings: {ex.Message}");
+				SelectedChampionship = SettingsConstants.MenChampionship;
+				SelectedLanguage = SettingsConstants.EnglishLanguage;
+				FavoriteTeam = null;
+			}
+		}
 
-        public async Task<bool> AreSettingsDefinedAsync()
+		public async Task<bool> AreSettingsDefinedAsync()
         {
             try
             {
@@ -82,30 +83,48 @@ namespace WFA_WorldCupStats.Managers
             return false;
         }
 
-        public async Task SaveSettingsAsync(string championship, string language)
-        {
-            if (!SettingsValidator.IsValidChampionship(championship) || !SettingsValidator.IsValidLanguage(language))
-            {
-                throw new ArgumentException("Invalid championship or language value");
-            }
+		public async Task SaveSettingsAsync(string championship, string language)
+		{
+			if (!SettingsValidator.IsValidChampionship(championship) || !SettingsValidator.IsValidLanguage(language))
+			{
+				throw new ArgumentException("Invalid championship or language value");
+			}
 
-            try
-            {
-                await _dataProvider.SaveSettingsAsync("Championship", championship);
-                await _dataProvider.SaveSettingsAsync("Language", language);
-                SelectedChampionship = championship;
-                SelectedLanguage = language;
-                _logForm.Log($"Settings saved: Championship={championship}, Language={language}");
-                OnSettingsChanged();
-            }
-            catch (Exception ex)
-            {
-                _logForm.Log($"Error saving settings: {ex.Message}");
-                throw;
-            }
-        }
+			try
+			{
+				// Provjera je li došlo do promjene prvenstva
+				bool championshipChanged = SelectedChampionship != championship;
 
-        public async Task SaveFavoriteTeamAsync(string fifaCode)
+				await _dataProvider.SaveSettingsAsync("Championship", championship);
+				await _dataProvider.SaveSettingsAsync("Language", language);
+
+				SelectedChampionship = championship;
+				SelectedLanguage = language;
+
+				// Ako je prvenstvo promijenjeno, resetirajmo odabrani tim
+				if (championshipChanged)
+				{
+					await ResetFavoriteTeamAsync();
+				}
+
+				_logForm.Log($"Settings saved: Championship={championship}, Language={language}");
+				OnSettingsChanged();
+			}
+			catch (Exception ex)
+			{
+				_logForm.Log($"Error saving settings: {ex.Message}");
+				throw;
+			}
+		}
+
+		private async Task ResetFavoriteTeamAsync()
+		{
+			FavoriteTeam = null;
+			await _dataProvider.SaveFavoriteTeamAsync(string.Empty);
+			_logForm.Log("Favorite team reset due to championship change");
+		}
+
+		public async Task SaveFavoriteTeamAsync(string fifaCode)
         {
             if (string.IsNullOrEmpty(fifaCode))
             {
