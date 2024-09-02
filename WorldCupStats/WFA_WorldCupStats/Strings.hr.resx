@@ -259,4 +259,16 @@
   <data name="LimitReached" xml:space="preserve">
     <value>Litmit dosegnut</value>
   </data>
+  <data name="ApplicationClosingMessage" xml:space="preserve">
+    <value>Jeste li sigurni da želite zatvoriti aplikaciju?</value>
+  </data>
+  <data name="ApplicatonClosingTitle" xml:space="preserve">
+    <value>Potvrda zatvaranja</value>
+  </data>
+  <data name="SettingsConfirmationMessage" xml:space="preserve">
+    <value>Zelite li promijeniti postavke?</value>
+  </data>
+  <data name="SettingsConfirmationTitle" xml:space="preserve">
+    <value>Promijena postavki</value>
+  </data>
 </root>

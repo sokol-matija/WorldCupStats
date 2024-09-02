@@ -35,8 +35,6 @@ namespace WFA_WorldCupStats.Managers
         private void LocalizeMenuItems(MainForm form)
         {
             form.mnuSettings.Text = Strings.SettingsMenuItem;
-            form.mnuChosePrintType.Text = Strings.ChosePrintTypeMenuItem;
-            form.mnuPrintPreview.Text = Strings.PrintPreviewMenuItem;
             form.mnuPrint.Text = Strings.PrintMenuItem;
             form.mnuPrintStatistics.Text = Strings.PrintStatisticsMenuItem;
         }

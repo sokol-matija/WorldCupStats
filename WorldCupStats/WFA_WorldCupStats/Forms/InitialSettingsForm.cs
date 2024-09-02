@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -6,7 +6,7 @@ using WFA_WorldCupStats.Managers;
 
 namespace WFA_WorldCupStats
 {
-    public partial class InitialSettingsForm : Form
+	public partial class InitialSettingsForm : Form
 	{
 		private readonly SettingsManager _settingsManager;
 		private readonly SettingsUIManager _settingsUIManager;
@@ -43,6 +43,22 @@ namespace WFA_WorldCupStats
 		public void UpdateComboBoxDisplayText(ComboBox comboBox)
 		{
 			_settingsUIManager.UpdateComboBoxDisplayText(comboBox);
+		}
+
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		{
+			if (keyData == Keys.Enter)
+			{
+				btnSave.PerformClick();
+				return true;
+			}
+			else if (keyData == Keys.Escape)
+			{
+				DialogResult = DialogResult.Cancel;
+				Close();
+				return true;
+			}
+			return base.ProcessCmdKey(ref msg, keyData);
 		}
 	}
 

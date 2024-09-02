@@ -123,6 +123,12 @@
   <data name="AllPlayersLabel" xml:space="preserve">
     <value>All Players</value>
   </data>
+  <data name="ApplicationClosingMessage" xml:space="preserve">
+    <value>Are you shure you want to close the app?</value>
+  </data>
+  <data name="ApplicatonClosingTitle" xml:space="preserve">
+    <value>Closing Confirmation</value>
+  </data>
   <data name="Capitain" xml:space="preserve">
     <value>Capitain</value>
   </data>
@@ -230,6 +236,12 @@
   </data>
   <data name="SetPlayerImage" xml:space="preserve">
     <value>Set Player Image</value>
+  </data>
+  <data name="SettingsConfirmationMessage" xml:space="preserve">
+    <value>Do you want to change the settingsa?</value>
+  </data>
+  <data name="SettingsConfirmationTitle" xml:space="preserve">
+    <value>Settings Confirmation</value>
   </data>
   <data name="SettingsFormTitle" xml:space="preserve">
     <value>Settings</value>

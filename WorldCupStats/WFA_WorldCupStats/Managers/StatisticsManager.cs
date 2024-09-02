@@ -1,38 +1,11 @@
-﻿using DataLayer.Models;
-using System.Text;
+﻿using System.Text;
+using DataLayer.Models;
 using WFA_WorldCupStats.Controls;
 
 namespace WFA_WorldCupStats.Managers
 {
 	public class StatisticsManager
 	{
-		public void UpdateStatisticsPanel(Panel panel, List<PlayerStats> stats)
-		{
-			panel.Invoke((MethodInvoker)delegate
-			{
-				panel.Controls.Clear();
-				foreach (var stat in stats)
-				{
-					//TODO: Implement RankingPlayerControl
-					//var control = new RankingPlayerControl(stat, _dataProvider);
-					//panel.Controls.Add(control);
-				}
-			});
-		}
-
-		public void UpdateMatchesPanel(Panel panel, List<Match> matches)
-		{
-			panel.Invoke((MethodInvoker)delegate
-			{
-				panel.Controls.Clear();
-				foreach (var match in matches)
-				{
-					var control = new MatchControl(match);
-					panel.Controls.Add(control);
-				}
-			});
-		}
-
 		public string GenerateStatisticsReport(Panel topScorers, Panel yellowCards, Panel matches)
 		{
 			StringBuilder report = new StringBuilder();
@@ -52,7 +25,7 @@ namespace WFA_WorldCupStats.Managers
 			report.AppendLine(title);
 			foreach (RankingPlayerControl control in panel.Controls)
 			{
-				//report.AppendLine($"{control.}: {control.Count}");
+				report.AppendLine($"{control.PlayerName}: {control.Count}");
 			}
 			report.AppendLine();
 		}
@@ -62,7 +35,7 @@ namespace WFA_WorldCupStats.Managers
 			report.AppendLine(title);
 			foreach (MatchControl control in panel.Controls)
 			{
-				//report.AppendLine($"{control.MatchInfo}");
+				report.AppendLine($"{control.HomeTeam} vs {control.AwayTeam}: Attendance {control.Attendance}");
 			}
 			report.AppendLine();
 		}

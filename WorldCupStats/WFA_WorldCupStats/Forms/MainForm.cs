@@ -27,6 +27,7 @@ namespace WFA_WorldCupStats
 			_dragDropManager = new DragDropManager(this, _playerManager, _uiManager, _logForm);
 			_eventHandlers = new EventHandlers(this, _settingsManager, _playerManager, _uiManager);
 
+			mnuPrintStatistics.Click += mnuPrintStatistics_Click;
 			_logForm.Show();
 
 			InitializeAsync();
@@ -95,7 +96,7 @@ namespace WFA_WorldCupStats
 		{
 			if (string.IsNullOrEmpty(_settingsManager.FavoriteTeam))
 			{
-				// Oèisti panele ako nema odabranog tima
+				// Oï¿½isti panele ako nema odabranog tima
 				_uiManager.ClearStatisticsPanels();
 				_logForm.Log("No favorite team selected. Clearing panels.");
 				return;
@@ -161,5 +162,41 @@ namespace WFA_WorldCupStats
 		private void printStatistics_Click(object sender, EventArgs e) => _eventHandlers.HandlePrintStatisticsClick(sender, e);
 		public void PlayerControl_FavoriteToggled(object sender, EventArgs e) => _eventHandlers.HandlePlayerFavoriteToggled(sender, e);
 		public void PlayerControl_SelectionToggled(object sender, EventArgs e) => _eventHandlers.HandlePlayerSelectionToggled(sender, e);
+		private void mnuPrintStatistics_Click(object sender, EventArgs e) => _uiManager.PrepareAndShowPrintPreview();
+
+		protected override void OnFormClosing(FormClosingEventArgs e)
+		{
+			if (e.CloseReason == CloseReason.UserClosing)
+			{
+				var result = MessageBox.Show(
+					Strings.ApplicationClosingMessage,
+					Strings.ApplicatonClosingTitle,
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Question,
+					MessageBoxDefaultButton.Button2);
+
+				if (result == DialogResult.No)
+				{
+					e.Cancel = true;
+				}
+			}
+			base.OnFormClosing(e);
+		}
+
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		{
+			if (keyData == Keys.Enter)
+			{
+				// Potvrdi zatvaranje
+				Close();
+				return true;
+			}
+			else if (keyData == Keys.Escape)
+			{
+				// Odustani od zatvaranja
+				return true;
+			}
+			return base.ProcessCmdKey(ref msg, keyData);
+		}
 	}
 }

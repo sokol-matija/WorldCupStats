@@ -40,9 +40,6 @@
 			menuStrip = new MenuStrip();
 			mnuSettings = new ToolStripMenuItem();
 			mnuPrint = new ToolStripMenuItem();
-			mnuChosePrintType = new ToolStripMenuItem();
-			mnuPrintPreview = new ToolStripMenuItem();
-			mnuPrinting = new ToolStripMenuItem();
 			mnuPrintStatistics = new ToolStripMenuItem();
 			printDialog = new PrintDialog();
 			printDocument = new System.Drawing.Printing.PrintDocument();
@@ -156,33 +153,15 @@
 			// 
 			// mnuPrint
 			// 
-			mnuPrint.DropDownItems.AddRange(new ToolStripItem[] { mnuChosePrintType, mnuPrintPreview, mnuPrinting, mnuPrintStatistics });
+			mnuPrint.DropDownItems.AddRange(new ToolStripItem[] { mnuPrintStatistics });
 			mnuPrint.Name = "mnuPrint";
 			mnuPrint.Size = new Size(74, 34);
 			mnuPrint.Text = "Print";
 			// 
-			// mnuChosePrintType
-			// 
-			mnuChosePrintType.Name = "mnuChosePrintType";
-			mnuChosePrintType.Size = new Size(286, 40);
-			mnuChosePrintType.Text = "Chose Print Type";
-			// 
-			// mnuPrintPreview
-			// 
-			mnuPrintPreview.Name = "mnuPrintPreview";
-			mnuPrintPreview.Size = new Size(286, 40);
-			mnuPrintPreview.Text = "Print Preview";
-			// 
-			// mnuPrinting
-			// 
-			mnuPrinting.Name = "mnuPrinting";
-			mnuPrinting.Size = new Size(286, 40);
-			mnuPrinting.Text = "Print";
-			// 
 			// mnuPrintStatistics
 			// 
 			mnuPrintStatistics.Name = "mnuPrintStatistics";
-			mnuPrintStatistics.Size = new Size(286, 40);
+			mnuPrintStatistics.Size = new Size(315, 40);
 			mnuPrintStatistics.Text = "Print Statistics";
 			mnuPrintStatistics.Click += printStatistics_Click;
 			// 
@@ -303,9 +282,6 @@
 		public StatusStrip statusStrip;
 		public ToolStripMenuItem mnuSettings;
 		public ToolStripMenuItem mnuPrint;
-		public ToolStripMenuItem mnuChosePrintType;
-		public ToolStripMenuItem mnuPrintPreview;
-		public ToolStripMenuItem mnuPrinting;
 		public ToolStripMenuItem mnuPrintStatistics;
 		public Button btnMoveToFavorites;
 		public Panel pnlTopScorers;

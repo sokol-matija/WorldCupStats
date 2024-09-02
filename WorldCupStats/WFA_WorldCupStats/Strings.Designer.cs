@@ -79,6 +79,24 @@ namespace WFA_WorldCupStats {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you shure you want to close the app?.
+        /// </summary>
+        internal static string ApplicationClosingMessage {
+            get {
+                return ResourceManager.GetString("ApplicationClosingMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closing Confirmation.
+        /// </summary>
+        internal static string ApplicatonClosingTitle {
+            get {
+                return ResourceManager.GetString("ApplicatonClosingTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Capitain.
         /// </summary>
         internal static string Capitain {
@@ -399,6 +417,24 @@ namespace WFA_WorldCupStats {
         internal static string SetPlayerImage {
             get {
                 return ResourceManager.GetString("SetPlayerImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to change the settingsa?.
+        /// </summary>
+        internal static string SettingsConfirmationMessage {
+            get {
+                return ResourceManager.GetString("SettingsConfirmationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings Confirmation.
+        /// </summary>
+        internal static string SettingsConfirmationTitle {
+            get {
+                return ResourceManager.GetString("SettingsConfirmationTitle", resourceCulture);
             }
         }
         
