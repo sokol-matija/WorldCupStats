@@ -1,12 +1,41 @@
 ﻿<Window x:Class="WPF_WorldCupStats.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WPF_WorldCupStats"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="World Cup Statistics" Height="600" Width="800">
+	<Grid Margin="10">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+			<Label Content="{DynamicResource FavoriteTeam}" />
+			<ComboBox x:Name="cbFavoriteTeam" 
+              Width="200" 
+              Margin="0,0,10,0"
+              ItemsSource="{Binding Teams}"
+              SelectedItem="{Binding SelectedTeam}"
+              DisplayMemberPath="Country"/>
+			<Label Content="{DynamicResource OpponentTeam}" />
+			<ComboBox x:Name="cbOpponentTeam" 
+              Width="200" 
+              Margin="0,0,10,0"
+              ItemsSource="{Binding OpponentTeams}"
+              SelectedItem="{Binding SelectedOpponentTeam}"
+              DisplayMemberPath="Country"/>
+			<TextBlock Text="{Binding MatchResult}" VerticalAlignment="Center"/>
+		</StackPanel>
 
-    </Grid>
+		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+			<Button x:Name="btnFavoriteTeamInfo" Content="Favorite Team Info" Margin="0,0,10,0" Click="btnFavoriteTeamInfo_Click"/>
+			<Button x:Name="btnOpponentTeamInfo" Content="Opponent Team Info" Click="btnOpponentTeamInfo_Click"/>
+		</StackPanel>
+
+
+
+		<Grid Grid.Row="2" x:Name="gridFormation">
+			<Image Source="pack://application:,,,/Assets/football_field.png" Stretch="Uniform"/>
+			<!-- igrači će biti dodani ovdje -->
+		</Grid>
+	</Grid>
 </Window>

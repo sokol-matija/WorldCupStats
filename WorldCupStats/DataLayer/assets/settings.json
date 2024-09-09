@@ -1,1 +1,5 @@
-{"Championship":"women","Language":"en"}
+{
+	"Championship": "women",
+	"Language": "en",
+	"WindowSize": "fullscreen"
+}
