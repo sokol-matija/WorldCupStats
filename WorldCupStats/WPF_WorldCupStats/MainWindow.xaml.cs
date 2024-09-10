@@ -1,7 +1,11 @@
 ﻿using DataLayer;
 using DataLayer.Models;
+using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace WPF_WorldCupStats
 {
@@ -23,6 +27,12 @@ namespace WPF_WorldCupStats
 		{
 			await ShowInitialSettingsIfNeeded();
 			await _viewModel.LoadDataAsync();
+
+			cbFavoriteTeam.ItemsSource = null;
+			cbFavoriteTeam.ItemsSource = _viewModel.Teams;
+			cbFavoriteTeam.SelectedItem = _viewModel.SelectedTeam;
+
+			DisplayPlayersOnField();
 		}
 
 		private async Task ShowInitialSettingsIfNeeded()
@@ -90,30 +100,25 @@ namespace WPF_WorldCupStats
 			{
 				Debug.WriteLine("ApplySettings started");
 
-				// Učitaj postavke
 				string championship = await _dataProvider.LoadSettingsAsync("Championship");
 				string language = await _dataProvider.LoadSettingsAsync("Language");
 				string windowSize = await _dataProvider.LoadSettingsAsync("WindowSize");
 
-				// Primijeni jezik
 				if (!string.IsNullOrEmpty(language))
 				{
 					ChangeLanguage(language);
 				}
 
-				// Primijeni veličinu prozora
 				if (!string.IsNullOrEmpty(windowSize))
 				{
 					ApplyWindowSize(windowSize);
 				}
 
-				// Primijeni prvenstvo i osvježi podatke
 				if (!string.IsNullOrEmpty(championship))
 				{
-					//await _viewModel.LoadChampionshipDataAsync(championship);
+					await _viewModel.LoadDataAsync();
 				}
 
-				// Osvježi bindings
 				this.UpdateLayout();
 
 				Debug.WriteLine("ApplySettings completed");
@@ -134,25 +139,14 @@ namespace WPF_WorldCupStats
 
 				ResourceDictionary dict = new ResourceDictionary();
 				string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-				string resourcePath;
-
-				switch (languageCode.ToLower())
-				{
-					case "hr":
-						resourcePath = $"pack://application:,,,/{assemblyName};component/Resources/Lang.hr.xaml";
-						break;
-					case "en":
-					default:
-						resourcePath = $"pack://application:,,,/{assemblyName};component/Resources/Lang.en.xaml";
-						break;
-				}
+				string resourcePath = languageCode.ToLower() == "hr"
+					? $"pack://application:,,,/{assemblyName};component/Resources/Lang.hr.xaml"
+					: $"pack://application:,,,/{assemblyName};component/Resources/Lang.en.xaml";
 
 				Debug.WriteLine($"Attempting to load resource from: {resourcePath}");
 				dict.Source = new Uri(resourcePath, UriKind.Absolute);
 
-				// Ukloni sve postojeće rječnike
 				Application.Current.Resources.MergedDictionaries.Clear();
-				// Dodaj novi rječnik
 				Application.Current.Resources.MergedDictionaries.Add(dict);
 
 				Debug.WriteLine("Language change completed successfully");
@@ -191,7 +185,6 @@ namespace WPF_WorldCupStats
 					break;
 			}
 		}
-
 
 		private void btnFavoriteTeamInfo_Click(object sender, RoutedEventArgs e)
 		{
@@ -236,6 +229,38 @@ namespace WPF_WorldCupStats
 			//printService.PrintStatistics(_viewModel);
 		}
 
+		private void DisplayPlayersOnField()
+		{
+			gridFormation.Children.Clear();
+			var positions = _viewModel.GeneratePositions("4-4-2"); // Možete promijeniti formaciju po potrebi
+
+			for (int i = 0; i < Math.Min(positions.Count, _viewModel.TeamPlayers.Count); i++)
+			{
+				var player = _viewModel.TeamPlayers[i];
+				var position = positions[i];
+				
+				var playerControl = new PlayerControl();
+				
+				playerControl.SetPlayerInfo(player.Name, player.ShirtNumber.ToString(), "C:\\Temp\\profile.png");
+
+				Grid.SetColumn(playerControl, 0);
+				Grid.SetRow(playerControl, 0);
+
+				var left = position.X * gridFormation.ActualWidth - (playerControl.Width / 2);
+				var top = position.Y * gridFormation.ActualHeight - (playerControl.Height / 2);
+
+				Canvas.SetLeft(playerControl, left);
+				Canvas.SetTop(playerControl, top);
+
+				gridFormation.Children.Add(playerControl);
+			}
+		}
+
+		private async void cbFavoriteTeam_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			await _viewModel.LoadTeamPlayersAsync();
+			DisplayPlayersOnField();
+		}
 
 		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
 		{
@@ -245,6 +270,11 @@ namespace WPF_WorldCupStats
 				e.Cancel = true;
 			}
 			base.OnClosing(e);
+		}
+
+		private void OnExitClick(object sender, RoutedEventArgs e)
+		{
+			Close();
 		}
 	}
 }

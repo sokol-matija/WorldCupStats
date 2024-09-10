@@ -1,9 +1,17 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
-	<system:String x:Key="FavoriteTeam">Omiljena Ekipa</system:String>
-	<system:String x:Key="OpponentTeam">Protivnička Ekipa</system:String>
-	<system:String x:Key="TeamInfo">Informacije o Timu</system:String>
-	<system:String x:Key="PlayerInfo">Informacije o Igraču</system:String>
-	<!-- Dodajte ostale prijevode -->
+	<system:String x:Key="MainWindowTitle">Statistika Svjetskog prvenstva</system:String>
+	<system:String x:Key="FileMenu">Datoteka</system:String>
+	<system:String x:Key="SettingsMenuItem">Postavke</system:String>
+	<system:String x:Key="PrintMenuItem">Ispis</system:String>
+	<system:String x:Key="PrintStatisticsMenuItem">Ispis statistike</system:String>
+	<system:String x:Key="ExitMenuItem">Izlaz</system:String>
+	<system:String x:Key="StatisticsMenu">Statistika</system:String>
+	<system:String x:Key="FavoriteTeam">Omiljeni tim</system:String>
+	<system:String x:Key="OpponentTeam">Protivnički tim</system:String>
+	<system:String x:Key="FavoriteTeamInfo">Informacije o omiljenom timu</system:String>
+	<system:String x:Key="OpponentTeamInfo">Informacije o protivničkom timu</system:String>
+	<system:String x:Key="AllPlayers">Svi igrači</system:String>
+	<system:String x:Key="FavoritePlayers">Omiljeni igrači</system:String>
 </ResourceDictionary>

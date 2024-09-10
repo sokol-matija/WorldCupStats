@@ -128,7 +128,7 @@ namespace WPF_WorldCupStats
 			}
 		}
 
-		private async Task LoadTeamPlayersAsync()
+		public async Task LoadTeamPlayersAsync()
 		{
 			if (SelectedTeam != null)
 			{
@@ -225,12 +225,33 @@ namespace WPF_WorldCupStats
 				}
 			}
 		}
-
+		
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
+
+
+		public List<PlayerPosition> GeneratePositions(string formation)
+		{
+			// Ovo je pojednostavljeni primjer za formaciju 4-4-2
+			return new List<PlayerPosition>
+			{
+				new PlayerPosition { X = 0.5, Y = 0.95, Position = "Goalie" },
+				new PlayerPosition { X = 0.2, Y = 0.75, Position = "Defender" },
+				new PlayerPosition { X = 0.4, Y = 0.75, Position = "Defender" },
+				new PlayerPosition { X = 0.6, Y = 0.75, Position = "Defender" },
+				new PlayerPosition { X = 0.8, Y = 0.75, Position = "Defender" },
+				new PlayerPosition { X = 0.2, Y = 0.5, Position = "Midfield" },
+				new PlayerPosition { X = 0.4, Y = 0.5, Position = "Midfield" },
+				new PlayerPosition { X = 0.6, Y = 0.5, Position = "Midfield" },
+				new PlayerPosition { X = 0.8, Y = 0.5, Position = "Midfield" },
+				new PlayerPosition { X = 0.35, Y = 0.25, Position = "Forward" },
+				new PlayerPosition { X = 0.65, Y = 0.25, Position = "Forward" }
+			};
+		}
+
 	}
 }
