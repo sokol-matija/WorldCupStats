@@ -96,35 +96,69 @@ namespace WPF_WorldCupStats
 			try
 			{
 				IsLoading = true;
+				System.Diagnostics.Debug.WriteLine("Starting LoadDataAsync");
+
 				_selectedChampionship = await _dataProvider.LoadSettingsAsync("Championship");
+				System.Diagnostics.Debug.WriteLine($"Loaded Championship: {_selectedChampionship}");
+
 				var teams = await _dataProvider.GetTeamsAsync(_selectedChampionship);
+				System.Diagnostics.Debug.WriteLine($"Loaded {teams.Count} teams");
+
 				var matches = await _dataProvider.GetMatchesAsync(_selectedChampionship);
+				System.Diagnostics.Debug.WriteLine($"Loaded {matches.Count} matches");
 
 				Teams.Clear();
 				foreach (var team in teams)
 				{
 					Teams.Add(team);
+					System.Diagnostics.Debug.WriteLine($"Added team: {team.Country}, FIFA Code: {team.FifaCode}");
 				}
 
 				Matches.Clear();
 				foreach (var match in matches)
 				{
 					Matches.Add(match);
+					System.Diagnostics.Debug.WriteLine($"Added match: {match.HomeTeam.Country} vs {match.AwayTeam.Country}");
+				}
+
+				UpdateTeamStatistics();
+				System.Diagnostics.Debug.WriteLine("Updated team statistics");
+
+				if (Teams.Any())
+				{
+					DebugTeamData(Teams.First());
 				}
 
 				string favoriteTeam = await _dataProvider.LoadFavoriteTeamAsync();
+				System.Diagnostics.Debug.WriteLine($"Loaded favorite team: {favoriteTeam}");
+
 				if (!string.IsNullOrEmpty(favoriteTeam))
 				{
 					SelectedTeam = Teams.FirstOrDefault(t => t.FifaCode == favoriteTeam);
+					if (SelectedTeam != null)
+					{
+						System.Diagnostics.Debug.WriteLine($"Set selected team to: {SelectedTeam.Country}");
+					}
+					else
+					{
+						System.Diagnostics.Debug.WriteLine("Favorite team not found in loaded teams");
+					}
+				}
+				else
+				{
+					System.Diagnostics.Debug.WriteLine("No favorite team set");
 				}
 			}
 			catch (Exception ex)
 			{
+				System.Diagnostics.Debug.WriteLine($"Error in LoadDataAsync: {ex.Message}");
+				System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
 				MessageBox.Show($"Error loading data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			finally
 			{
 				IsLoading = false;
+				System.Diagnostics.Debug.WriteLine("Finished LoadDataAsync");
 			}
 		}
 
@@ -252,6 +286,43 @@ namespace WPF_WorldCupStats
 				new PlayerPosition { X = 0.65, Y = 0.25, Position = "Forward" }
 			};
 		}
+		private void UpdateTeamStatistics()
+		{
+			foreach (var match in Matches)
+			{
+				UpdateTeamStatsFromMatch(match.HomeTeam, match.AwayTeam, match);
+				UpdateTeamStatsFromMatch(match.AwayTeam, match.HomeTeam, match);
+			}
+		}
+
+		private void UpdateTeamStatsFromMatch(TeamResult teamResult, TeamResult opponentResult, Match match)
+		{
+			var team = Teams.FirstOrDefault(t => t.FifaCode == teamResult.Code);
+			if (team != null)
+			{
+				team.GamesPlayed++;
+				team.GoalsFor += teamResult.Goals ?? 0;
+				team.GoalsAgainst += opponentResult.Goals ?? 0;
+
+				if (teamResult.Goals > opponentResult.Goals)
+				{
+					team.Wins++;
+				}
+				else if (teamResult.Goals < opponentResult.Goals)
+				{
+					team.Losses++;
+				}
+				else
+				{
+					team.Draws++;
+				}
+
+				team.GoalDifferential = team.GoalsFor - team.GoalsAgainst;
+				team.Points = (team.Wins * 3) + team.Draws;
+			}
+		}
+
+
 
 	}
 }

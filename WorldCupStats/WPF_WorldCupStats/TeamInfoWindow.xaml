@@ -15,6 +15,16 @@
 		</EventTrigger>
 	</Window.Triggers>
 	<Border Background="White" CornerRadius="10" BorderBrush="Gray" BorderThickness="1">
-		<!-- Sadržaj prozora -->
+		<StackPanel Margin="20">
+			<TextBlock x:Name="txtTeamName" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+			<TextBlock x:Name="txtFifaCode" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtGamesPlayed" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtWins" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtLosses" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtDraws" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtGoalsFor" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtGoalsAgainst" Margin="0,0,0,5"/>
+			<TextBlock x:Name="txtGoalDifferential" Margin="0,0,0,5"/>
+		</StackPanel>
 	</Border>
 </Window>

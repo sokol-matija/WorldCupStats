@@ -26,8 +26,7 @@ namespace WPF_WorldCupStats
 		private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
 		{
 			await ShowInitialSettingsIfNeeded();
-			await _viewModel.LoadDataAsync();
-
+			
 			cbFavoriteTeam.ItemsSource = null;
 			cbFavoriteTeam.ItemsSource = _viewModel.Teams;
 			cbFavoriteTeam.SelectedItem = _viewModel.SelectedTeam;
@@ -114,10 +113,14 @@ namespace WPF_WorldCupStats
 					ApplyWindowSize(windowSize);
 				}
 
-				if (!string.IsNullOrEmpty(championship))
-				{
-					await _viewModel.LoadDataAsync();
-				}
+				await _viewModel.LoadDataAsync();
+
+				// Osvježite UI nakon učitavanja podataka
+				cbFavoriteTeam.ItemsSource = null;
+				cbFavoriteTeam.ItemsSource = _viewModel.Teams;
+				cbFavoriteTeam.SelectedItem = _viewModel.SelectedTeam;
+
+				DisplayPlayersOnField();
 
 				this.UpdateLayout();
 
@@ -188,7 +191,16 @@ namespace WPF_WorldCupStats
 
 		private void btnFavoriteTeamInfo_Click(object sender, RoutedEventArgs e)
 		{
-			ShowTeamInfo(_viewModel.SelectedTeam);
+			if (_viewModel.SelectedTeam != null)
+			{
+				System.Diagnostics.Debug.WriteLine($"Opening TeamInfoWindow for team: {_viewModel.SelectedTeam.Country}");
+				var teamInfoWindow = new TeamInfoWindow(_viewModel.SelectedTeam);
+				teamInfoWindow.Show();
+			}
+			else
+			{
+				MessageBox.Show("Please select a team first.", "No Team Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+			}
 		}
 
 		private void btnOpponentTeamInfo_Click(object sender, RoutedEventArgs e)
